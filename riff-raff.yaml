@@ -1,0 +1,17 @@
+stacks:
+- subs-holiday-credit-zuora-home-delivery-invoice-crediter
+regions:
+- eu-west-1
+deployments:
+  zuora-home-delivery-invoice-crediter:
+    type: aws-lambda
+    parameters:
+      fileName: zuora-home-delivery-invoice-crediter.zip
+      bucket: subs-holiday-credit-dist
+      functions:
+        CODE:
+          name: zuora-home-delivery-invoice-crediter-CODE
+          filename: zuora-home-delivery-invoice-crediter.zip
+        PROD:
+          name: zuora-home-delivery-invoice-crediter-PROD
+          filename: zuora-home-delivery-invoice-crediter.zip

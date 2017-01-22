@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS Lambda - This Lambda finds negative Holiday Credit invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
+Parameters:
+    Stack:
+        Description: Stack name
+        Type: String
+        Default: subs-holiday-credit-zuora-home-delivery-invoice-crediter
+    App:
+        Description: Application name
+        Type: String
+        Default: zuora-home-delivery-invoice-crediter
+    Stage:
+        Description: Stage name
+        Type: String
+        AllowedValues:
+            - PROD
+            - CODE
+        Default: CODE
+
+Resources:
+    Zuora-home-delivery-invoice-crediterRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service:
+                             - lambda.amazonaws.com
+                      Action:
+                          - sts:AssumeRole
+            Path: /
+            Policies:
+                - PolicyName: LambdaPolicy
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - logs:CreateLogGroup
+                                - logs:CreateLogStream
+                                - logs:PutLogEvents
+                                - lambda:InvokeFunction
+                            Resource: "*"
+
+    Lambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName:
+                !Sub zuora-home-delivery-invoice-crediter-${Stage}
+            Environment:
+                Variables:
+                # Add your config/environment variables here.
+
+            Code:
+                S3Bucket: subs-holiday-credit-dist
+                S3Key:
+                    !Sub ${Stack}/${Stage}/zuora-home-delivery-invoice-crediter/zuora-home-delivery-invoice-crediter.zip
+            Description: This Lambda finds negative Holiday Credit invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
+            Handler: com.gu.zuora-home-delivery-invoice-crediter.Lambda::handleRequest
+            MemorySize: 256
+            Role:
+                Fn::GetAtt:
+                - Zuora-home-delivery-invoice-crediterRole
+                - Arn
+            Runtime: java8
+            Timeout: 300
+
+    #
+    # Add your Lambda trigger rule and permissions here.
+    #
+    #
+    #
