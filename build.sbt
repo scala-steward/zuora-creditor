@@ -1,5 +1,6 @@
-name := "zuora-home-delivery-invoice-crediter"
-description:= "This Lambda finds negative Holiday Credit invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
+name := "zuora-crediter"
+description:= "This project contains a set of services and Lambda functions which find negative invoices and converts " +
+  "them into a credit balance on the user's account, so that the amount is discounted off their next positive bill"
 version       := "0.0.1"
 scalaVersion := "2.11.8"
 organization := "com.gu.zuora"

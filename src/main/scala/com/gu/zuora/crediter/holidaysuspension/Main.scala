@@ -1,6 +1,4 @@
-package com.gu.zuora.crediter
-
-import com.gu.zuora.crediter.holidaysuspension.Lambda
+package com.gu.zuora.crediter.holidaysuspension
 
 object Main {
   def main(args: Array[String]): Unit = {

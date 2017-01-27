@@ -3,7 +3,8 @@ package com.gu.zuora.crediter
 import java.lang.System.getenv
 
 import com.gu.zuora.crediter.Types.{ZuoraRestClient, ZuoraSoapClient}
-import com.gu.zuora.soap.Soap
+import com.gu.zuora.soap.{SessionHeader, Soap}
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.reflect.internal.util.StringOps
 import scalaj.http.HttpOptions.readTimeout
@@ -12,9 +13,10 @@ import scalaj.http.{HttpRequest, _}
 trait ZuoraClients {
   def zuoraRestClient: ZuoraRestClient
   def zuoraSoapClient: ZuoraSoapClient
+  def getSoapAPISession: Option[SessionHeader]
 }
 
-object ZuoraClientsFromEnvironment extends ZuoraClients {
+object ZuoraClientsFromEnvironment extends ZuoraClients with LazyLogging {
 
   private val zuoraApiAccessKeyId = getenv("ZuoraApiAccessKeyId")
   private val zuoraApiSecretAccessKey = getenv("ZuoraApiSecretAccessKey")
@@ -35,4 +37,18 @@ object ZuoraClientsFromEnvironment extends ZuoraClients {
 
 
   def zuoraRestClient: ZuoraRestClient = getZuoraRestClient
+
+  def getSoapAPISession: Option[SessionHeader] = {
+    val loginResponse = zuoraSoapClient.login(Some(getenv("ZuoraApiAccessKeyId")), Some(getenv("ZuoraApiSecretAccessKey")))
+    if (loginResponse.isLeft) {
+      logger.error(s"Unable to log in to Zuora API. Reason: " + loginResponse.left.toOption.mkString)
+    }
+    for {
+      response <- loginResponse.right.toOption
+      result <- response.result
+      sessionId <- result.Session
+    } yield {
+      SessionHeader(sessionId)
+    }
+  }
 }
