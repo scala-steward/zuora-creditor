@@ -7,7 +7,9 @@ import com.typesafe.scalalogging.StrictLogging
 
 class Lambda extends RequestHandler[KeyValue, KeyValue] with StrictLogging {
 
-  implicit val zuoraClients = ZuoraClientsFromEnvironment
+  private implicit val zuoraClients = ZuoraClientsFromEnvironment
+  private implicit val zuoraRestClient = zuoraClients.zuoraRestClient
+
   val exportGenerator = new ZuoraExportGenerator(GetNegativeHolidaySuspensionInvoices)
   val invoiceCrediter = new ZuoraCreditTransferService(CreateHolidaySuspensionCredit)
 

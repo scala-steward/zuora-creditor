@@ -1,11 +1,13 @@
 package com.gu.zuora.crediter
 
 import com.gu.zuora.crediter.Models.ExportCommand
-import com.gu.zuora.crediter.Types.{ExportId, SerialisedJson, ZuoraRestClient}
+import com.gu.zuora.crediter.Types.{ExportId, SerialisedJson}
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.{DefaultJsonProtocol => DJP, _}
 
-class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraClients: ZuoraClients) extends LazyLogging {
+import scala.util.Try
+
+class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: ZuoraRestClient) extends LazyLogging {
 
   import DJP._
 
@@ -19,15 +21,18 @@ class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraClients: ZuoraC
     maybeExportId
   }
 
-  def scheduleExportInZuora(): Option[ExportId] = {
+  private def scheduleExportInZuora(): Option[ExportId] = {
     val commandJSON = command.getJSON
-    val response = zuoraClients.zuoraRestClient("object/export").postData(commandJSON).asString
-    if (!response.isSuccess) {
+    val response = zuoraRestClient.makeRestPOST("object/export")(commandJSON)
+    if (!response.isEmpty) {
       logger.error(s"Request to create Zuora Export using command: $commandJSON")
     }
-    extractExportId(response.body).filter(_.nonEmpty)
+    extractExportId(response)
   }
 
-  def extractExportId(response: SerialisedJson): Option[ExportId] =
-    response.parseJson.asJsObject.getFields("Id").headOption.map(_.convertTo[ExportId])
+  def extractExportId(response: SerialisedJson): Option[ExportId] = {
+    Try {
+      response.parseJson.asJsObject.getFields("Id").headOption.map(_.convertTo[ExportId])
+    }.toOption.flatten.filter(_.nonEmpty)
+  }
 }

@@ -51,7 +51,8 @@ libraryDependencies ++= Seq(
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
   "io.spray" %%  "spray-json" % "1.3.3",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
-  "com.github.melrief" %% "purecsv" % "0.0.9"
+  "com.github.melrief" %% "purecsv" % "0.0.9",
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
 
 initialize := {

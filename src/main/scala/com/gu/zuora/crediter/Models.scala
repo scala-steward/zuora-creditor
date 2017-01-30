@@ -1,7 +1,7 @@
 package com.gu.zuora.crediter
 
 import com.gu.zuora.crediter.Models.NegativeInvoiceFileLine
-import com.gu.zuora.crediter.Types.SerialisedJson
+import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson}
 import com.gu.zuora.soap.CreditBalanceAdjustment
 import purecsv.unsafe
 import purecsv.unsafe.CSVReader
@@ -24,7 +24,7 @@ object Models {
     def getJSON: SerialisedJson
   }
 
-  case class ExportFile[S <: ExportFileLine](rawCSV: String)(implicit reader: CSVReader[S]) {
+  case class ExportFile[S <: ExportFileLine](rawCSV: RawCSVText)(implicit reader: CSVReader[S]) {
     val reportLines: Seq[S] = {
       val allLines = reader.readCSVFromString(rawCSV) // includes header row!
       allLines.tail

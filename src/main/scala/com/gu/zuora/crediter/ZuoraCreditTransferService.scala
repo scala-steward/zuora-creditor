@@ -9,6 +9,8 @@ import com.typesafe.scalalogging.LazyLogging
 class ZuoraCreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(implicit zuoraClients: ZuoraClients) extends LazyLogging {
 
   import ModelReaders._
+  private implicit val zuoraRestClient = zuoraClients.zuoraRestClient
+
   private val soapCallOptions = CallOptions(useSingleTransaction = Some(Some(false)))
   private val zuoraExportDownloader = new ZuoraExportDownloader
 
