@@ -3,7 +3,7 @@ package com.gu.zuora.crediter
 import java.lang.System.getenv
 
 import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZuoraSoapClient}
-import com.gu.zuora.soap.{SessionHeader, Soap}
+import com.gu.zuora.soap.SessionHeader
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.reflect.internal.util.StringOps
@@ -38,7 +38,7 @@ object ZuoraClientsFromEnvironment extends ZuoraClients with LazyLogging {
     .header("apiSecretAccessKey", zuoraApiSecretAccessKey)
     .option(readTimeout(zuoraApiTimeout))
 
-  lazy val zuoraSoapClient: Soap = new com.gu.zuora.soap.SoapBindings with scalaxb.Soap11Clients with scalaxb.DispatchHttpClients {
+  lazy val zuoraSoapClient: ZuoraSoapClient = new com.gu.zuora.soap.SoapBindings with scalaxb.Soap11Clients with scalaxb.DispatchHttpClients {
     override def baseAddress = new java.net.URI(s"https://$zuoraApiHost/apps/services/a/83.0")
   }.service
 

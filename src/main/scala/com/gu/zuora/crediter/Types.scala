@@ -9,7 +9,7 @@ object Types {
   type FileId = String
   type KeyValue = Map[String, String]
   type RawCSVText = String
-  type NegativeInvoiceCSVFile = ExportFile[NegativeInvoiceFileLine]
+  type NegativeInvoiceReport = ExportFile[NegativeInvoiceFileLine]
   type SerialisedJson = String
   type ZOQLQueryFragment = String
   type CreditBalanceAdjustmentIDs = Seq[String]

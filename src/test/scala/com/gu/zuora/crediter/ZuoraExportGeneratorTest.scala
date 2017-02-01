@@ -6,24 +6,29 @@ import org.scalatest.FlatSpec
 
 class ZuoraExportGeneratorTest extends FlatSpec {
 
-  implicit val zuoraRestClient = new ZuoraRestClient {
-    override def makeRestPOST(path: String)(commandJSON: SerialisedJson): SerialisedJson = {
-      assert(path == "object/export")
-      assert(commandJSON == """{"export":"command"}""")
-      """{"Id":"baz"}"""
-    }
-    override def makeRestGET(path: String) = ""
-    override def downloadFile(path: String) = ""
+  val validCommand = new ExportCommand {
+    override def getJSON: SerialisedJson = """{"valid":"command"}"""
   }
 
-  val command = new ExportCommand {
-    override def getJSON: SerialisedJson = """{"export":"command"}"""
+  val invalidCommand = new ExportCommand {
+    override def getJSON: SerialisedJson = """{"invalid":"command"}"""
+  }
+
+  implicit val zuoraRestClient = new TestRestClient {
+    override def makeRestPOST(path: String)(commandJSON: SerialisedJson): SerialisedJson = {
+      assert(path == "object/export")
+      if (commandJSON == validCommand.getJSON) {
+        """{"Id":"baz"}"""
+      } else {
+        ""
+      }
+    }
   }
 
   behavior of "ZuoraExportGeneratorTest"
 
   it should "extractExportId" in {
-    val generator = new ZuoraExportGenerator(command)
+    val generator = new ZuoraExportGenerator(validCommand)
     assert(generator.extractExportId("""{"foo":"bar"}""").isEmpty)
     assert(generator.extractExportId("""{"Id":""}""").isEmpty)
     assert(generator.extractExportId("""{"Id": 1}""").isEmpty)
@@ -32,8 +37,11 @@ class ZuoraExportGeneratorTest extends FlatSpec {
   }
 
   it should "generate" in {
-    val generator = new ZuoraExportGenerator(command)
-    assert(generator.generate().contains("baz"))
+    val generator1 = new ZuoraExportGenerator(validCommand)
+    assert(generator1.generate().contains("baz"))
+
+    val generator2 = new ZuoraExportGenerator(invalidCommand)
+    assert(generator2.generate().isEmpty)
   }
 
 

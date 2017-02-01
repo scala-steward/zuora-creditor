@@ -13,7 +13,7 @@ class ZuoraExportDownloader(implicit zuoraRestClient: ZuoraRestClient) extends L
     if (maybeFileId.isEmpty) {
       logger.error(s"No FileId found in Zuora Export: $exportId. Zuora response: $exportResponse")
     }
-    maybeFileId.map(downloadExportFile)
+    maybeFileId.map(downloadExportFile).filter(_.nonEmpty)
   }
 
   private def getZuoraExport(exportId: ExportId) = zuoraRestClient.makeRestGET(s"object/export/$exportId")

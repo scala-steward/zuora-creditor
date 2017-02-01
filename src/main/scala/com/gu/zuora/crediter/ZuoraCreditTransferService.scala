@@ -1,9 +1,11 @@
 package com.gu.zuora.crediter
 
 import com.gu.zuora.crediter.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
-import com.gu.zuora.crediter.Types.{CreditBalanceAdjustmentIDs, ErrorMessage, ExportId, NegativeInvoiceCSVFile}
+import com.gu.zuora.crediter.Types.{CreditBalanceAdjustmentIDs, ErrorMessage, ExportId, NegativeInvoiceReport}
 import com.gu.zuora.soap.{CallOptions, Create, CreditBalanceAdjustment, SessionHeader}
 import com.typesafe.scalalogging.LazyLogging
+
+import scala.util.Try
 
 
 class ZuoraCreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(implicit zuoraClients: ZuoraClients) extends LazyLogging {
@@ -23,10 +25,10 @@ class ZuoraCreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(
     if (invoicesWhichNeedCrediting.isEmpty) {
       logger.warn("No negative invoices reqire crediting today")
     }
-    makeCreditAdjustments(invoicesWhichNeedCrediting)
+    makeCreditAdjustments(invoicesWhichNeedCrediting).size
   }
 
-  def invoicesFromReport(report: NegativeInvoiceCSVFile): Set[NegativeInvoiceToTransfer] = {
+  def invoicesFromReport(report: NegativeInvoiceReport): Set[NegativeInvoiceToTransfer] = {
     report.reportLines.flatMap { reportLine =>
       val result = processNegativeInvoicesExportLine(reportLine)
       result.left.foreach(x => logger.warn(x))
@@ -35,28 +37,33 @@ class ZuoraCreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(
   }
 
   def processNegativeInvoicesExportLine(reportLine: NegativeInvoiceFileLine): Either[ErrorMessage, NegativeInvoiceToTransfer] = {
-    val invoiceBalance = BigDecimal.apply(reportLine.invoiceBalance).setScale(2, BigDecimal.RoundingMode.HALF_DOWN) // Not HALF_EVEN - we always round to the customer's benefit
-    if (invoiceBalance < 0) {
-      Right(NegativeInvoiceToTransfer(reportLine.invoiceNumber, invoiceBalance, reportLine.subscriptionName))
+    // Not HALF_EVEN rounding - we always round to the customer's benefit
+    val invoiceBalance = Try(BigDecimal.apply(reportLine.invoiceBalance).setScale(2, BigDecimal.RoundingMode.UP)).toOption
+    val invoiceNumberIsValid = reportLine.invoiceNumber.nonEmpty
+    val subscriptionNameIsValid = reportLine.subscriptionName.nonEmpty
+
+    if (invoiceBalance.exists(_ < 0) && invoiceNumberIsValid && subscriptionNameIsValid) {
+      Right(NegativeInvoiceToTransfer(reportLine.invoiceNumber, invoiceBalance.get, reportLine.subscriptionName))
     } else {
-      Left(s"Ignored invoice ${reportLine.invoiceNumber} with balance ${reportLine.invoiceBalance} for subscription: ${reportLine.subscriptionName} as its balance is not negative")
+      Left(s"Ignored invoice ${reportLine.invoiceNumber} dated ${reportLine.invoiceDate} with balance ${reportLine.invoiceBalance} for subscription: " +
+        s"${reportLine.subscriptionName} as its balance is not negative or some other piece of information is missing")
     }
   }
 
-
-  def makeCreditAdjustments(invoices: Set[NegativeInvoiceToTransfer]): Int = {
+  def makeCreditAdjustments(invoices: Set[NegativeInvoiceToTransfer]): CreditBalanceAdjustmentIDs = {
     // Sort by invoice name to help with logging, we're going to credit them in order of their invoice number
     val invoicesToCredit = invoices.toSeq.sortBy(_.invoiceNumber)
-    if (invoicesToCredit.isEmpty) 0 else {
-      val allInvoiceNumbers = invoicesToCredit.map(a => s"${a.invoiceNumber} (${a.invoiceBalance})").mkString(", ")
-      zuoraClients.getSoapAPISession.fold(0) { implicit sessionHeader =>
-        logger.info(s"Attempting to create ${allInvoiceNumbers.length} Credit Balance Adjustments for Invoices: $allInvoiceNumbers")
-        val adjustmentsToMake = invoicesToCredit.map(command.createCreditBalanceAdjustment)
-        val createdAdjustments = createCreditBalanceAdjustments(adjustmentsToMake)
-        logger.info(s"Successfully created ${createdAdjustments.length} Credit Balance Adjustments with IDs: ${createdAdjustments.mkString(", ")}")
-        createdAdjustments.length
-      }
-    }
+    val allInvoiceNumbers = invoicesToCredit.map(a => s"${a.invoiceNumber} (${a.invoiceBalance})").mkString(", ")
+    logger.info(s"Attempting to create ${invoicesToCredit.length} Credit Balance Adjustments for Invoices: $allInvoiceNumbers")
+
+    val adjustmentsToMake = invoicesToCredit.map(command.createCreditBalanceAdjustment)
+    val createdAdjustments: CreditBalanceAdjustmentIDs = (for {
+      _ <- adjustmentsToMake.headOption
+      session <- zuoraClients.getSoapAPISession
+    } yield createCreditBalanceAdjustments(adjustmentsToMake)(session)).getOrElse(Seq.empty[String])
+
+    logger.info(s"Successfully created ${createdAdjustments.length} Credit Balance Adjustments with IDs: ${createdAdjustments.mkString(", ")}")
+    createdAdjustments
   }
 
   def createCreditBalanceAdjustments(adjustments: Seq[CreditBalanceAdjustment])(implicit sessionHeader: SessionHeader): CreditBalanceAdjustmentIDs = {
@@ -71,7 +78,10 @@ class ZuoraCreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(
       for (error <- saveResult.Errors.flatten) {
         logger.warn(s"Error creating Credit Balance Adjustment: ${error.Message.flatten.mkString}")
       }
-      saveResult.Id.flatten
+      saveResult.Id.flatMap(id => {
+        logger.info(s"Successfully created Credit Balance Adjustment, ID: ${id.mkString}")
+        id
+      })
     }).flatten
   }
 

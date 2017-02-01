@@ -9,12 +9,12 @@ import purecsv.unsafe.CSVReader
 object Models {
 
   trait ExportFileLine
-  case class NegativeInvoiceFileLine(subscriptionName: String, invoiceId: String, invoiceNumber: String, invoiceDate: String, invoiceBalance: String) extends ExportFileLine
+  case class NegativeInvoiceFileLine(subscriptionName: String, invoiceNumber: String, invoiceDate: String, invoiceBalance: String) extends ExportFileLine
   case object NegativeInvoiceFileLine {
     val selectForZOQL = "SELECT Subscription.Name, Invoice.InvoiceNumber, Invoice.InvoiceDate, Invoice.Balance FROM InvoiceItem"
   }
   case class NegativeInvoiceToTransfer(invoiceNumber: String, invoiceBalance: BigDecimal, subscriberId: String) {
-    val transferrableBalance: BigDecimal = if (invoiceBalance < 0) invoiceBalance * -1 else 0
+    val transferrableBalance: BigDecimal = if (invoiceBalance < 0) invoiceBalance * -1 else BigDecimal(0)
   }
   trait CreateCreditBalanceAdjustmentCommand {
     def createCreditBalanceAdjustment(invoice: NegativeInvoiceToTransfer): CreditBalanceAdjustment
@@ -25,9 +25,9 @@ object Models {
   }
 
   case class ExportFile[S <: ExportFileLine](rawCSV: RawCSVText)(implicit reader: CSVReader[S]) {
-    val reportLines: Seq[S] = {
-      val allLines = reader.readCSVFromString(rawCSV) // includes header row!
-      allLines.tail
+    val reportLines: List[S] = {
+      val allLines = reader.readCSVFromString(rawCSV)
+      allLines.drop(1) // discard header row!
     }
   }
 }
