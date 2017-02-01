@@ -2,10 +2,12 @@ package com.gu.zuora.crediter.holidaysuspension
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.zuora.crediter.Types.KeyValue
-import com.gu.zuora.crediter.{ZuoraCreditTransferService, ZuoraClientsFromEnvironment, ZuoraExportGenerator}
-import com.typesafe.scalalogging.StrictLogging
+import com.gu.zuora.crediter.{ZuoraClientsFromEnvironment, ZuoraCreditTransferService, ZuoraExportGenerator}
+import com.typesafe.scalalogging.LazyLogging
 
-class Lambda extends RequestHandler[KeyValue, KeyValue] with StrictLogging {
+import scala.collection.JavaConverters._
+
+class Lambda extends RequestHandler[KeyValue, KeyValue] with LazyLogging {
 
   private implicit val zuoraClients = ZuoraClientsFromEnvironment
   private implicit val zuoraRestClient = zuoraClients.zuoraRestClient
@@ -14,18 +16,17 @@ class Lambda extends RequestHandler[KeyValue, KeyValue] with StrictLogging {
   val invoiceCrediter = new ZuoraCreditTransferService(CreateHolidaySuspensionCredit)
 
   override def handleRequest(event: KeyValue, context: Context): KeyValue = {
-    val shouldScheduleReport = event.get("scheduleReport").contains("true")
-    val shouldCreditInvoices = event.get("creditInvoicesFromExport").exists(_.nonEmpty)
+    val shouldScheduleReport = "true".equals(event.get("scheduleReport"))
+    val exportId = event.get("creditInvoicesFromExport")
+    val shouldCreditInvoices = Option(exportId).exists(_.nonEmpty)
 
     if (shouldScheduleReport) {
-      val exportId = exportGenerator.generate()
-      Map("creditInvoicesFromExport" -> exportId.mkString)
+      Map("creditInvoicesFromExport" -> exportGenerator.generate().mkString).asJava
     } else if (shouldCreditInvoices) {
-      val invoicesTransferred = event.get("creditInvoicesFromExport").map(invoiceCrediter.processExportFile).getOrElse(0)
-      Map("numberOfInvoicesCredited" -> invoicesTransferred.toString)
+      Map("numberOfInvoicesCredited" -> invoiceCrediter.processExportFile(exportId).toString).asJava
     } else {
       logger.error(s"Lambda called with incorrect input data: $event")
-      Map("nothingToDo" -> true.toString)
+      Map("nothingToDo" -> true.toString).asJava
     }
   }
 
