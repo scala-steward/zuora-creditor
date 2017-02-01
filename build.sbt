@@ -46,6 +46,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.2" % "compile",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1" % "compile",
   "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
+  "com.amazonaws" % "aws-java-sdk-kms" % "1.11.86",
   "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
