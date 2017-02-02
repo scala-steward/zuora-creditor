@@ -21,8 +21,8 @@ class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: Zuo
   private def scheduleExportInZuora(): Option[ExportId] = {
     val commandJSON = command.getJSON
     val response = zuoraRestClient.makeRestPOST("object/export")(commandJSON)
-    if (!response.isEmpty) {
-      logger.error(s"Request to create Zuora Export using command: $commandJSON")
+    if (response.isEmpty) {
+      logger.error(s"Request to create Zuora Export using command: $commandJSON yielded no response")
     }
     extractExportId(response)
   }
