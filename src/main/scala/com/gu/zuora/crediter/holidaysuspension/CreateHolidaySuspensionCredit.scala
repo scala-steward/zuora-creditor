@@ -8,7 +8,7 @@ object CreateHolidaySuspensionCredit extends CreateCreditBalanceAdjustmentComman
   def createCreditBalanceAdjustment(invoice: NegativeInvoiceToTransfer): CreditBalanceAdjustment = {
     CreditBalanceAdjustment(
       Amount = Some(Some(invoice.transferrableBalance)),
-      Comment = Some(Some(s"${this.getClass.getSimpleName} is transferring negative Holiday Credit invoice ${invoice.invoiceNumber} into subscriber ${invoice.subscriberId}'s account credit.")),
+      Comment = Some(Some(s"${this.getClass.getSimpleName} is transferring negative Holiday Suspension invoice ${invoice.invoiceNumber} into subscriber ${invoice.subscriberId}'s account credit.")),
       ReasonCode = Some(Some("Holiday Suspension Credit")),
       SourceTransactionNumber = Some(Some(invoice.invoiceNumber)),
       Type = Some(Some("Increase"))

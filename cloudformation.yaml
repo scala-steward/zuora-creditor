@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: AWS Lambda - This Lambda finds negative Holiday Credit invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
+Description: AWS Lambda - This Lambda finds negative Holiday Suspension invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
 Parameters:
     Stack:
         Description: Stack name
@@ -55,7 +55,7 @@ Resources:
                 S3Bucket: Subscriptions-dist
                 S3Key:
                     !Sub ${Stack}/${Stage}/zuora-holiday-suspension-invoice-crediter/zuora-holiday-suspension-invoice-crediter.zip
-            Description: This Lambda finds negative Holiday Credit invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
+            Description: This Lambda finds negative Holiday Suspension invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
             Handler: com.gu.zuora-holiday-suspension-invoice-crediter.Lambda::handleRequest
             MemorySize: 256
             Role:

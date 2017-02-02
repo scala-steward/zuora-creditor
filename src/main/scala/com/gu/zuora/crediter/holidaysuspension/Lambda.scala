@@ -2,12 +2,11 @@ package com.gu.zuora.crediter.holidaysuspension
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.zuora.crediter.Types.KeyValue
-import com.gu.zuora.crediter.{ZuoraAPIClientsFromEnvironment, CreditTransferService, ZuoraExportGenerator}
-import com.typesafe.scalalogging.LazyLogging
+import com.gu.zuora.crediter.{CreditTransferService, Logging, ZuoraAPIClientsFromEnvironment, ZuoraExportGenerator}
 
 import scala.collection.JavaConverters._
 
-class Lambda extends RequestHandler[KeyValue, KeyValue] with LazyLogging {
+class Lambda extends RequestHandler[KeyValue, KeyValue] with Logging {
 
   private implicit val zuoraClients = ZuoraAPIClientsFromEnvironment
   private implicit val zuoraRestClient = zuoraClients.zuoraRestClient

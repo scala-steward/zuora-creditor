@@ -3,12 +3,11 @@ package com.gu.zuora.crediter
 import com.gu.zuora.crediter.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
 import com.gu.zuora.crediter.Types.{CreditBalanceAdjustmentIDs, ErrorMessage, ExportId, NegativeInvoiceReport}
 import com.gu.zuora.soap.{CallOptions, Create, CreditBalanceAdjustment, SessionHeader}
-import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Try
 
 
-class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(implicit zuoraClients: ZuoraAPIClients) extends LazyLogging {
+class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(implicit zuoraClients: ZuoraAPIClients) extends Logging {
 
   import ModelReaders._
   private implicit val zuoraRestClient = zuoraClients.zuoraRestClient
