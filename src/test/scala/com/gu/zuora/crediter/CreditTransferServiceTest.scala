@@ -102,7 +102,7 @@ class CreditTransferServiceTest extends FlatSpec {
       CreditBalanceAdjustment(Id = Some(Some(s"Refunding-$testSubscriberId-B")))
     )
     implicit val zuoraClients = new TestZuoraAPIClients {
-      override def zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate)
+      override val zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate)
     }
     val service = new CreditTransferService(mockCommand)
     implicit val sessionHeader: SessionHeader = SessionHeader("foo")
@@ -116,7 +116,7 @@ class CreditTransferServiceTest extends FlatSpec {
   it should "not create any createCreditBalanceAdjustments in Zuora when given no adjustments to create" in {
     val adjustmentsToCreate = Seq.empty
     implicit val zuoraClients = new TestZuoraAPIClients {
-      override def zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate)
+      override val zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate)
     }
     val service = new CreditTransferService(mockCommand)
     implicit val sessionHeader: SessionHeader = SessionHeader("foo")
@@ -130,7 +130,7 @@ class CreditTransferServiceTest extends FlatSpec {
       CreditBalanceAdjustment(Id = Some(Some(s"Refunding-$testSubscriberId-B")))
     )
     implicit val zuoraClients = new TestZuoraAPIClients {
-      override def zuoraSoapClient: ZuoraSoapClient = getUnsuccessfulCreateResponseForHeadSource(adjustmentsToCreate)
+      override val zuoraSoapClient: ZuoraSoapClient = getUnsuccessfulCreateResponseForHeadSource(adjustmentsToCreate)
     }
     val service = new CreditTransferService(mockCommand)
     implicit val sessionHeader: SessionHeader = SessionHeader("bar")
@@ -162,7 +162,7 @@ class CreditTransferServiceTest extends FlatSpec {
     }
 
     implicit val zuoraClients = new TestZuoraAPIClients {
-      override def zuoraSoapClient = new TestSoapClient {
+      override val zuoraSoapClient = new TestSoapClient {
         override def create(create: Create, callOptions: CallOptions, sessionHeader: SessionHeader): Either[Soap11Fault[InvalidTypeFault], CreateResponse] = {
           val zObjects = create.zObjects
           assert(zObjects.size == source.size)
