@@ -1,15 +1,19 @@
 package com.gu.zuora.crediter
 
 import java.lang.System.getenv
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 
+import com.amazonaws.services.kms.AWSKMSClientBuilder
+import com.amazonaws.services.kms.model.DecryptRequest
+import com.amazonaws.util.Base64
 import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZuoraSoapClient}
-import com.gu.zuora.soap.{SessionHeader, Soap}
+import com.gu.zuora.soap.SessionHeader
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.reflect.internal.util.StringOps
 import scalaj.http.HttpOptions.readTimeout
 import scalaj.http.{HttpRequest, _}
-
 
 trait ZuoraRestClient {
   def makeRestGET(path: String): SerialisedJson
@@ -17,16 +21,28 @@ trait ZuoraRestClient {
   def makeRestPOST(path: String)(commandJSON: SerialisedJson): SerialisedJson
 }
 
-trait ZuoraClients {
+trait ZuoraAPIClients {
   def zuoraRestClient: ZuoraRestClient
   def zuoraSoapClient: ZuoraSoapClient
   def getSoapAPISession: Option[SessionHeader]
 }
 
-object ZuoraClientsFromEnvironment extends ZuoraClients with LazyLogging {
+object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with LazyLogging {
+
+  private def decryptSecret(cyphertext: String) = {
+    if (getenv("SkipSecretDecryption") == "true") {
+      cyphertext
+    } else {
+      val encryptedKey = ByteBuffer.wrap(Base64.decode(cyphertext))
+      val client = AWSKMSClientBuilder.defaultClient
+      val request = new DecryptRequest().withCiphertextBlob(encryptedKey)
+      val plainTextKey = client.decrypt(request).getPlaintext
+      new String(plainTextKey.array(), Charset.forName("UTF-8"))
+    }
+  }
 
   private val zuoraApiAccessKeyId = getenv("ZuoraApiAccessKeyId")
-  private val zuoraApiSecretAccessKey = getenv("ZuoraApiSecretAccessKey")
+  private val zuoraApiSecretAccessKey = decryptSecret(getenv("ZuoraApiSecretAccessKey"))
   private val zuoraApiHost = getenv("ZuoraApiHost")
   private val zuoraApiTimeout = StringOps.oempty(getenv("ZuoraApiTimeout")).headOption.getOrElse("10000").toInt
 
@@ -38,7 +54,7 @@ object ZuoraClientsFromEnvironment extends ZuoraClients with LazyLogging {
     .header("apiSecretAccessKey", zuoraApiSecretAccessKey)
     .option(readTimeout(zuoraApiTimeout))
 
-  lazy val zuoraSoapClient: Soap = new com.gu.zuora.soap.SoapBindings with scalaxb.Soap11Clients with scalaxb.DispatchHttpClients {
+  lazy val zuoraSoapClient: ZuoraSoapClient = new com.gu.zuora.soap.SoapBindings with scalaxb.Soap11Clients with scalaxb.DispatchHttpClients {
     override def baseAddress = new java.net.URI(s"https://$zuoraApiHost/apps/services/a/83.0")
   }.service
 
@@ -49,7 +65,7 @@ object ZuoraClientsFromEnvironment extends ZuoraClients with LazyLogging {
   }
 
   def getSoapAPISession: Option[SessionHeader] = {
-    val loginResponse = zuoraSoapClient.login(Some(getenv("ZuoraApiAccessKeyId")), Some(getenv("ZuoraApiSecretAccessKey")))
+    val loginResponse = zuoraSoapClient.login(Some(zuoraApiAccessKeyId), Some(zuoraApiSecretAccessKey))
     if (loginResponse.isLeft) {
       logger.error(s"Unable to log in to Zuora API. Reason: " + loginResponse.left.toOption.mkString)
     }

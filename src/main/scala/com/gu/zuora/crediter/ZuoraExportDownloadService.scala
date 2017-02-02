@@ -4,7 +4,7 @@ import com.gu.zuora.crediter.Types.{ExportId, FileId, RawCSVText, SerialisedJson
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.{DefaultJsonProtocol => DJP, _}
 
-class ZuoraExportDownloader(implicit zuoraRestClient: ZuoraRestClient) extends LazyLogging {
+class ZuoraExportDownloadService(implicit zuoraRestClient: ZuoraRestClient) extends LazyLogging {
   import DJP._
 
   def downloadGeneratedExportFile(exportId: ExportId): Option[RawCSVText] = {
@@ -13,7 +13,7 @@ class ZuoraExportDownloader(implicit zuoraRestClient: ZuoraRestClient) extends L
     if (maybeFileId.isEmpty) {
       logger.error(s"No FileId found in Zuora Export: $exportId. Zuora response: $exportResponse")
     }
-    maybeFileId.map(downloadExportFile)
+    maybeFileId.map(downloadExportFile).filter(_.nonEmpty)
   }
 
   private def getZuoraExport(exportId: ExportId) = zuoraRestClient.makeRestGET(s"object/export/$exportId")

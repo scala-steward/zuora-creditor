@@ -1,7 +1,7 @@
 package com.gu.zuora.crediter
 
 import com.gu.zuora.crediter.Models.NegativeInvoiceFileLine
-import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson}
+import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZOQLQueryFragment}
 import com.gu.zuora.soap.CreditBalanceAdjustment
 import purecsv.unsafe
 import purecsv.unsafe.CSVReader
@@ -9,12 +9,15 @@ import purecsv.unsafe.CSVReader
 object Models {
 
   trait ExportFileLine
-  case class NegativeInvoiceFileLine(subscriptionName: String, invoiceId: String, invoiceNumber: String, invoiceDate: String, invoiceBalance: String) extends ExportFileLine
+  case class NegativeInvoiceFileLine(subscriptionName: String, invoiceNumber: String, invoiceDate: String, invoiceBalance: String) extends ExportFileLine
   case object NegativeInvoiceFileLine {
-    val selectForZOQL = "SELECT Subscription.Name, Invoice.InvoiceNumber, Invoice.InvoiceDate, Invoice.Balance FROM InvoiceItem"
+    val selectForZOQL: ZOQLQueryFragment =
+      "SELECT Subscription.Name, Invoice.InvoiceNumber, Invoice.InvoiceDate, Invoice.Balance " +
+      "FROM InvoiceItem " +
+      "WHERE Invoice.Balance < 0 and Invoice.Status = 'Posted'"
   }
   case class NegativeInvoiceToTransfer(invoiceNumber: String, invoiceBalance: BigDecimal, subscriberId: String) {
-    val transferrableBalance: BigDecimal = if (invoiceBalance < 0) invoiceBalance * -1 else 0
+    val transferrableBalance: BigDecimal = if (invoiceBalance < 0) invoiceBalance * -1 else BigDecimal(0)
   }
   trait CreateCreditBalanceAdjustmentCommand {
     def createCreditBalanceAdjustment(invoice: NegativeInvoiceToTransfer): CreditBalanceAdjustment
@@ -25,9 +28,9 @@ object Models {
   }
 
   case class ExportFile[S <: ExportFileLine](rawCSV: RawCSVText)(implicit reader: CSVReader[S]) {
-    val reportLines: Seq[S] = {
-      val allLines = reader.readCSVFromString(rawCSV) // includes header row!
-      allLines.tail
+    val reportLines: List[S] = {
+      val allLines = reader.readCSVFromString(rawCSV)
+      allLines.drop(1) // discard header row!
     }
   }
 }
