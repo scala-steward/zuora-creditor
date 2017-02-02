@@ -3,7 +3,7 @@ package com.gu.zuora.crediter
 import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson}
 import org.scalatest.FlatSpec
 
-class ZuoraExportDownloaderTest extends FlatSpec {
+class ZuoraExportDownloadServiceTest extends FlatSpec {
 
   val exportId = "foo"
   val unknownExportId = "bar"
@@ -36,7 +36,7 @@ class ZuoraExportDownloaderTest extends FlatSpec {
   behavior of "ZuoraExportDownloaderTest"
 
   it should "downloadGeneratedExportFile" in {
-    val zuoraExportDownloader = new ZuoraExportDownloader
+    val zuoraExportDownloader = new ZuoraExportDownloadService
     val csvFile = zuoraExportDownloader.downloadGeneratedExportFile(exportId)
     assert(csvFile.contains(expectedCSV))
     val unknownCsvFile = zuoraExportDownloader.downloadGeneratedExportFile(unknownExportId)

@@ -8,13 +8,13 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.util.Try
 
 
-class ZuoraCreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(implicit zuoraClients: ZuoraClients) extends LazyLogging {
+class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(implicit zuoraClients: ZuoraAPIClients) extends LazyLogging {
 
   import ModelReaders._
   private implicit val zuoraRestClient = zuoraClients.zuoraRestClient
 
   private val soapCallOptions = CallOptions(useSingleTransaction = Some(Some(false)))
-  private val zuoraExportDownloader = new ZuoraExportDownloader
+  private val zuoraExportDownloader = new ZuoraExportDownloadService
 
   def processExportFile(exportId: ExportId): Int = {
     val maybeExportCSV = zuoraExportDownloader.downloadGeneratedExportFile(exportId)

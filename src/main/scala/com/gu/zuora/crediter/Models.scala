@@ -11,7 +11,10 @@ object Models {
   trait ExportFileLine
   case class NegativeInvoiceFileLine(subscriptionName: String, invoiceNumber: String, invoiceDate: String, invoiceBalance: String) extends ExportFileLine
   case object NegativeInvoiceFileLine {
-    val selectForZOQL: ZOQLQueryFragment = "SELECT Subscription.Name, Invoice.InvoiceNumber, Invoice.InvoiceDate, Invoice.Balance FROM InvoiceItem"
+    val selectForZOQL: ZOQLQueryFragment =
+      "SELECT Subscription.Name, Invoice.InvoiceNumber, Invoice.InvoiceDate, Invoice.Balance " +
+      "FROM InvoiceItem " +
+      "WHERE Invoice.Balance < 0 and Invoice.Status = 'Posted'"
   }
   case class NegativeInvoiceToTransfer(invoiceNumber: String, invoiceBalance: BigDecimal, subscriberId: String) {
     val transferrableBalance: BigDecimal = if (invoiceBalance < 0) invoiceBalance * -1 else BigDecimal(0)

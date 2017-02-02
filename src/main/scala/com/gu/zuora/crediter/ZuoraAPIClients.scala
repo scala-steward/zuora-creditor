@@ -21,13 +21,13 @@ trait ZuoraRestClient {
   def makeRestPOST(path: String)(commandJSON: SerialisedJson): SerialisedJson
 }
 
-trait ZuoraClients {
+trait ZuoraAPIClients {
   def zuoraRestClient: ZuoraRestClient
   def zuoraSoapClient: ZuoraSoapClient
   def getSoapAPISession: Option[SessionHeader]
 }
 
-object ZuoraClientsFromEnvironment extends ZuoraClients with LazyLogging {
+object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with LazyLogging {
 
   private def decryptSecret(cyphertext: String) = {
     if (getenv("SkipSecretDecryption") == "true") {

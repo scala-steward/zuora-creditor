@@ -8,9 +8,7 @@ import spray.json.{DefaultJsonProtocol => DJP, _}
 import scala.util.Try
 
 class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: ZuoraRestClient) extends LazyLogging {
-
-  import DJP._
-
+  
   def generate(): Option[ExportId] = {
     val maybeExportId = scheduleExportInZuora()
     if (maybeExportId.isEmpty) {
@@ -31,6 +29,8 @@ class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: Zuo
   }
 
   def extractExportId(response: SerialisedJson): Option[ExportId] = {
+    import DJP._
+
     Try {
       response.parseJson.asJsObject.getFields("Id").headOption.map(_.convertTo[ExportId])
     }.toOption.flatten.filter(_.nonEmpty)

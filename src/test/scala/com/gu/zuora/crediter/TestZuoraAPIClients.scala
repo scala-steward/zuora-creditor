@@ -50,8 +50,8 @@ class TestRestClient extends ZuoraRestClient {
   override def makeRestPOST(path: String)(commandJSON: SerialisedJson): SerialisedJson = ???
 }
 
-class TestZuoraClients extends ZuoraClients{
-  override def zuoraSoapClient: ZuoraSoapClient = new TestSoapClient
-  override def zuoraRestClient: ZuoraRestClient = new TestRestClient
-  override def getSoapAPISession: Option[SessionHeader] = Some(SessionHeader("randomsessionid"))
+class TestZuoraAPIClients extends ZuoraAPIClients{
+  override val zuoraSoapClient: ZuoraSoapClient = new TestSoapClient
+  override val zuoraRestClient: ZuoraRestClient = new TestRestClient
+  override val getSoapAPISession: Option[SessionHeader] = Some(SessionHeader("randomsessionid"))
 }

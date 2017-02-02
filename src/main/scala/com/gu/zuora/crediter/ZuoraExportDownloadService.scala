@@ -4,7 +4,7 @@ import com.gu.zuora.crediter.Types.{ExportId, FileId, RawCSVText, SerialisedJson
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.{DefaultJsonProtocol => DJP, _}
 
-class ZuoraExportDownloader(implicit zuoraRestClient: ZuoraRestClient) extends LazyLogging {
+class ZuoraExportDownloadService(implicit zuoraRestClient: ZuoraRestClient) extends LazyLogging {
   import DJP._
 
   def downloadGeneratedExportFile(exportId: ExportId): Option[RawCSVText] = {

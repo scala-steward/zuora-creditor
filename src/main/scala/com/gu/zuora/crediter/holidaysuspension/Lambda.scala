@@ -2,18 +2,18 @@ package com.gu.zuora.crediter.holidaysuspension
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.zuora.crediter.Types.KeyValue
-import com.gu.zuora.crediter.{ZuoraClientsFromEnvironment, ZuoraCreditTransferService, ZuoraExportGenerator}
+import com.gu.zuora.crediter.{ZuoraAPIClientsFromEnvironment, CreditTransferService, ZuoraExportGenerator}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
 
 class Lambda extends RequestHandler[KeyValue, KeyValue] with LazyLogging {
 
-  private implicit val zuoraClients = ZuoraClientsFromEnvironment
+  private implicit val zuoraClients = ZuoraAPIClientsFromEnvironment
   private implicit val zuoraRestClient = zuoraClients.zuoraRestClient
 
   val exportGenerator = new ZuoraExportGenerator(GetNegativeHolidaySuspensionInvoices)
-  val invoiceCrediter = new ZuoraCreditTransferService(CreateHolidaySuspensionCredit)
+  val invoiceCrediter = new CreditTransferService(CreateHolidaySuspensionCredit)
 
   override def handleRequest(event: KeyValue, context: Context): KeyValue = {
     val shouldScheduleReport = "true".equals(event.get("scheduleReport"))
