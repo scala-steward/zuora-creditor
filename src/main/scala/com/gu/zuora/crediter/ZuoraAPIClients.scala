@@ -7,8 +7,8 @@ import java.nio.charset.Charset
 import com.amazonaws.services.kms.AWSKMSClientBuilder
 import com.amazonaws.services.kms.model.DecryptRequest
 import com.amazonaws.util.Base64
-import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZuoraSoapClient}
-import com.gu.zuora.soap.SessionHeader
+import com.gu.zuora.crediter.Types.{RawCSVText, ZuoraSoapClientError, SerialisedJson}
+import com.gu.zuora.soap.{CallOptions, Create, CreateResponse, SessionHeader, Soap, ZObjectable}
 
 import scala.reflect.internal.util.StringOps
 import scalaj.http.HttpOptions.readTimeout
@@ -20,10 +20,13 @@ trait ZuoraRestClient {
   def makeRestPOST(path: String)(commandJSON: SerialisedJson): SerialisedJson
 }
 
+trait ZuoraSoapClient {
+  def create(zObjects: Seq[ZObjectable]): Either[ZuoraSoapClientError, CreateResponse]
+}
+
 trait ZuoraAPIClients {
   def zuoraRestClient: ZuoraRestClient
   def zuoraSoapClient: ZuoraSoapClient
-  def getSoapAPISession: Option[SessionHeader]
 }
 
 object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with Logging {
@@ -53,9 +56,39 @@ object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with Logging {
     .header("apiSecretAccessKey", zuoraApiSecretAccessKey)
     .option(readTimeout(zuoraApiTimeout))
 
-  lazy val zuoraSoapClient: ZuoraSoapClient = new com.gu.zuora.soap.SoapBindings with scalaxb.Soap11Clients with scalaxb.DispatchHttpClients {
-    override def baseAddress = new java.net.URI(s"https://$zuoraApiHost/apps/services/a/83.0")
-  }.service
+  lazy val zuoraSoapClient: ZuoraSoapClient = new ZuoraSoapClient {
+
+    private val soapCallOptions = CallOptions(useSingleTransaction = Some(Some(false)))
+
+    private val service: Soap = new com.gu.zuora.soap.SoapBindings with scalaxb.Soap11Clients with scalaxb.DispatchHttpClients {
+      override def baseAddress = new java.net.URI(s"https://$zuoraApiHost/apps/services/a/83.0")
+    }.service
+
+    private val sessionHeader = {
+      val loginResponse = service.login(Some(zuoraApiAccessKeyId), Some(zuoraApiSecretAccessKey))
+      if (loginResponse.isLeft) {
+        logger.error(s"Unable to log in to Zuora API. Reason: " + loginResponse.left.toOption.mkString)
+      }
+      for {
+        response <- loginResponse.right.toOption
+        result <- response.result
+        sessionId <- result.Session
+      } yield {
+        SessionHeader(sessionId)
+      }
+    }
+
+    override def create(zObjects: Seq[ZObjectable]): Either[ZuoraSoapClientError, CreateResponse] = {
+      sessionHeader.map { session =>
+        val response = service.create(Create(zObjects), soapCallOptions, session)
+        if (response.isLeft) {
+          Left(response.left.get.detail.flatMap(_.FaultMessage).flatten.getOrElse("Unknown SOAP error"))
+        } else {
+          Right(response.right.get)
+        }
+      } getOrElse Left("No session")
+    }
+  }
 
   lazy val zuoraRestClient = new ZuoraRestClient {
     override def makeRestGET(pathSuffix: String): SerialisedJson = makeRequest(pathSuffix).asString.body
@@ -63,17 +96,4 @@ object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with Logging {
     override def makeRestPOST(pathSuffix: String)(commandJSON: SerialisedJson): SerialisedJson = makeRequest(pathSuffix).postData(commandJSON).asString.body
   }
 
-  def getSoapAPISession: Option[SessionHeader] = {
-    val loginResponse = zuoraSoapClient.login(Some(zuoraApiAccessKeyId), Some(zuoraApiSecretAccessKey))
-    if (loginResponse.isLeft) {
-      logger.error(s"Unable to log in to Zuora API. Reason: " + loginResponse.left.toOption.mkString)
-    }
-    for {
-      response <- loginResponse.right.toOption
-      result <- response.result
-      sessionId <- result.Session
-    } yield {
-      SessionHeader(sessionId)
-    }
-  }
 }
