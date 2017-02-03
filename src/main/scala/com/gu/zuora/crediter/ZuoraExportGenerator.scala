@@ -2,12 +2,11 @@ package com.gu.zuora.crediter
 
 import com.gu.zuora.crediter.Models.ExportCommand
 import com.gu.zuora.crediter.Types.{ExportId, SerialisedJson}
-import com.typesafe.scalalogging.LazyLogging
 import spray.json.{DefaultJsonProtocol => DJP, _}
 
 import scala.util.Try
 
-class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: ZuoraRestClient) extends LazyLogging {
+class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: ZuoraRestClient) extends Logging {
   
   def generate(): Option[ExportId] = {
     val maybeExportId = scheduleExportInZuora()
@@ -22,8 +21,8 @@ class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: Zuo
   private def scheduleExportInZuora(): Option[ExportId] = {
     val commandJSON = command.getJSON
     val response = zuoraRestClient.makeRestPOST("object/export")(commandJSON)
-    if (!response.isEmpty) {
-      logger.error(s"Request to create Zuora Export using command: $commandJSON")
+    if (response.isEmpty) {
+      logger.error(s"Request to create Zuora Export using command: $commandJSON yielded no response")
     }
     extractExportId(response)
   }

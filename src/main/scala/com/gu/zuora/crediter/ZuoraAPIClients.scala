@@ -9,7 +9,6 @@ import com.amazonaws.services.kms.model.DecryptRequest
 import com.amazonaws.util.Base64
 import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZuoraSoapClient}
 import com.gu.zuora.soap.SessionHeader
-import com.typesafe.scalalogging.LazyLogging
 
 import scala.reflect.internal.util.StringOps
 import scalaj.http.HttpOptions.readTimeout
@@ -27,7 +26,7 @@ trait ZuoraAPIClients {
   def getSoapAPISession: Option[SessionHeader]
 }
 
-object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with LazyLogging {
+object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with Logging {
 
   private def decryptSecret(cyphertext: String) = {
     if (getenv("SkipSecretDecryption") == "true") {

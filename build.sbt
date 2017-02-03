@@ -31,24 +31,23 @@ scalaxbPackageName in (Compile, scalaxb) := "com.gu.zuora.soap"
 scalaxbAsync in (Compile, scalaxb) := false
 
 topLevelDirectory in Universal := None
-packageName in (Compile, scalaxb) := "com.gu.zuora.soap"
+packageName in Universal := normalizedName.value
 
 riffRaffPackageType := (packageZipTarball in config("universal")).value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
-riffRaffManifestProjectName := "MemSub::Subscriptions"
+riffRaffManifestProjectName := "MemSub::Membership Admin::Zuora Crediter"
 
 addCommandAlias("dist", ";riffRaffArtifact")
 
 resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases"
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % "1.0.2" % "compile",
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1" % "compile",
+  "org.scala-lang.modules" %% "scala-xml" % "1.0.6" % "compile",
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5" % "compile",
+  "com.amazonaws" % "aws-lambda-java-log4j" % "1.0.0",
   "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
   "com.amazonaws" % "aws-java-sdk-kms" % "1.11.86",
-  "ch.qos.logback" % "logback-classic" % "1.1.7",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
   "io.spray" %%  "spray-json" % "1.3.3",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
