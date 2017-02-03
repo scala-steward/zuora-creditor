@@ -1,13 +1,15 @@
 package com.gu.zuora.crediter.holidaysuspension
 
+import com.gu.zuora.crediter.Lambda
+
 import scala.collection.JavaConverters._
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val map1 = Map("scheduleReport" -> "true")
-    val map2 = Map("creditInvoicesFromExport" -> "2c92c0f859b047b60159cafb920702bd")
+    val map1 = Map("scheduleReport" -> "GetNegativeHolidaySuspensionInvoices")
+    val map2 = Map("creditInvoicesFromExport" -> "2c92c0f859d957c3015a043a46e331be")
     val lambda = new Lambda
-    lambda.handleRequest(map1.asJava, null)
+    lambda.handleRequest(map2.asJava, null)
     System.exit(0)
   }
 }
