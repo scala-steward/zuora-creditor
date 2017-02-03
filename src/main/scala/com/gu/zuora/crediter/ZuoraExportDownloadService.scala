@@ -7,12 +7,14 @@ class ZuoraExportDownloadService(implicit zuoraRestClient: ZuoraRestClient) exte
   import DJP._
 
   def downloadGeneratedExportFile(exportId: ExportId): Option[RawCSVText] = {
-    val exportResponse = getZuoraExport(exportId)
-    val maybeFileId = extractFileId(exportResponse)
-    if (maybeFileId.isEmpty) {
-      logger.error(s"No FileId found in Zuora Export: $exportId. Zuora response: $exportResponse")
+    Option(exportId).filter(_.nonEmpty).flatMap { validExportId =>
+      val exportResponse = getZuoraExport(validExportId)
+      val maybeFileId = extractFileId(exportResponse)
+      if (maybeFileId.isEmpty) {
+        logger.error(s"No FileId found in Zuora Export: $validExportId. Zuora response: $exportResponse")
+      }
+      maybeFileId.map(downloadExportFile).filter(_.nonEmpty)
     }
-    maybeFileId.map(downloadExportFile).filter(_.nonEmpty)
   }
 
   private def getZuoraExport(exportId: ExportId) = zuoraRestClient.makeRestGET(s"object/export/$exportId")

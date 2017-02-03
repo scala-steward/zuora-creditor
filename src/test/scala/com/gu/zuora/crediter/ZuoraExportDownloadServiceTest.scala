@@ -41,8 +41,12 @@ class ZuoraExportDownloadServiceTest extends FlatSpec {
     assert(csvFile.contains(expectedCSV))
     val unknownCsvFile = zuoraExportDownloader.downloadGeneratedExportFile(unknownExportId)
     assert(unknownCsvFile.isEmpty)
-    val invalidCsvFile = zuoraExportDownloader.downloadGeneratedExportFile(invalidExportId)
-    assert(invalidCsvFile.isEmpty)
+    val invalidCsvFile1 = zuoraExportDownloader.downloadGeneratedExportFile(invalidExportId)
+    assert(invalidCsvFile1.isEmpty)
+    val invalidCsvFile2 = zuoraExportDownloader.downloadGeneratedExportFile(null)
+    assert(invalidCsvFile2.isEmpty)
+    val invalidCsvFile3 = zuoraExportDownloader.downloadGeneratedExportFile("")
+    assert(invalidCsvFile3.isEmpty)
   }
 
 }

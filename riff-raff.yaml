@@ -1,17 +1,17 @@
 stacks:
-- subs-holiday-credit-zuora-holiday-suspension-invoice-crediter
+- subscriptions
 regions:
 - eu-west-1
 deployments:
-  zuora-holiday-suspension-invoice-crediter:
+  ZuoraCrediter:
     type: aws-lambda
     parameters:
-      fileName: zuora-holiday-suspension-invoice-crediter.zip
-      bucket: subs-holiday-credit-dist
+      fileName: zuora-crediter.zip
+      bucket: subscriptions-dist
       functions:
-        CODE:
-          name: zuora-holiday-suspension-invoice-crediter-CODE
-          filename: zuora-holiday-suspension-invoice-crediter.zip
+        UAT:
+          name: Zuora-Crediter-UAT
+          filename: zuora-crediter-assembly.zip
         PROD:
-          name: zuora-holiday-suspension-invoice-crediter-PROD
-          filename: zuora-holiday-suspension-invoice-crediter.zip
+          name: Zuora-Crediter-PROD
+          filename: zuora-crediter.zip

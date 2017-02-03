@@ -1,72 +1,119 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: AWS Lambda - This Lambda finds negative Holiday Suspension invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
+Description: AWS Lambda - This Lambda finds negative invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill
 Parameters:
-    Stack:
-        Description: Stack name
-        Type: String
-        Default: Subscriptions
-    App:
-        Description: Application name
-        Type: String
-        Default: zuora-holiday-suspension-invoice-crediter
-    Stage:
-        Description: Stage name
-        Type: String
-        AllowedValues:
-            - PROD
-            - UAT
-        Default: UAT
+  Stack:
+    Description: Stack name
+    Type: String
+    Default: subscriptions
+  App:
+    Description: Application name
+    Type: String
+    Default: zuora-crediter
+  Stage:
+    Description: Stage name
+    Type: String
+    AllowedValues:
+      - PROD
+      - UAT
+    Default: UAT
+  RootIAMUser:
+    Description: The root IAM user's ARN
+    Type: String
+    Default: arn:aws:iam::[enter number here]:root
 
 Resources:
-    Zuora-holiday-suspension-invoice-crediter-Role:
-        Type: AWS::IAM::Role
-        Properties:
-            AssumeRolePolicyDocument:
-                Statement:
-                    - Effect: Allow
-                      Principal:
-                          Service:
-                             - lambda.amazonaws.com
-                      Action:
-                          - sts:AssumeRole
-            Path: /
-            Policies:
-                - PolicyName: LambdaPolicy
-                  PolicyDocument:
-                      Statement:
-                          - Effect: Allow
-                            Action:
-                                - logs:CreateLogGroup
-                                - logs:CreateLogStream
-                                - logs:PutLogEvents
-                                - lambda:InvokeFunction
-                            Resource: "*"
+  ZuoraCrediterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+               - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: LambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - lambda:InvokeFunction
+  LambdaKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: !Sub Used by the zuora-crediter-${Stage} lambda to encrypt and decrypt its environment variables
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: !Sub key-policy-zuora-crediter-${Stage}
+        Statement:
+        - Sid: Enable IAM User Permissions
+          Effect: Allow
+          Principal:
+            AWS:
+              !Ref RootIAMUser
+          Action: kms:*
+          Resource: "*"
+        - Sid: Allow access for Key Administrators
+          Effect: Allow
+          Action:
+          - kms:Create*
+          - kms:Describe*
+          - kms:Enable*
+          - kms:List*
+          - kms:Put*
+          - kms:Update*
+          - kms:Revoke*
+          - kms:Disable*
+          - kms:Get*
+          - kms:Delete*
+          - kms:ScheduleKeyDeletion
+          - kms:CancelKeyDeletion
+          Resource: "*"
+        - Sid: Allow use of the key
+          Effect: Allow
+          Principal:
+            AWS:
+              Fn::GetAtt:
+              - ZuoraCrediterRole
+              - Arn
+          Action:
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey*
+          - kms:DescribeKey
+          Resource: "*"
 
-    Lambda:
-        Type: AWS::Lambda::Function
-        Properties:
-            FunctionName:
-                !Sub zuora-holiday-suspension-invoice-crediter-${Stage}
-            Environment:
-                Variables:
-                # Add your config/environment variables here.
-
-            Code:
-                S3Bucket: Subscriptions-dist
-                S3Key:
-                    !Sub ${Stack}/${Stage}/zuora-holiday-suspension-invoice-crediter/zuora-holiday-suspension-invoice-crediter.zip
-            Description: This Lambda finds negative Holiday Suspension invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill"
-            Handler: com.gu.zuora-holiday-suspension-invoice-crediter.Lambda::handleRequest
-            MemorySize: 256
-            Role:
-                Fn::GetAtt:
-                - Zuora-holiday-suspension-invoice-crediter-Role
-                - Arn
-            Runtime: java8
-            Timeout: 300
-
-    #
-    # Add your Lambda trigger rule and permissions here.
-    #
-    #
-    #
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub zuora-crediter-${Stage}
+      Environment:
+        Variables:
+          ZuoraApiAccessKeyId: ""
+          ZuoraApiSecretAccessKey: ""
+          ZuoraApiHost: ""
+      Code:
+        S3Bucket: subscriptions-dist
+        S3Key:
+          !Sub ${Stack}/${Stage}/${App}/${App}.zip
+      Description: This Lambda finds negative invoices and converts them to be a credit on the customer's account so that the amount is deducted off their next positive bill.
+      Handler: com.gu.zuora.crediter.Lambda::handleRequest
+      MemorySize: 512
+      Role:
+        Fn::GetAtt:
+        - ZuoraCrediterRole
+        - Arn
+      Runtime: java8
+      Timeout: 60
+      KmsKeyArn:
+        Fn::GetAtt:
+        - LambdaKMSKey
+        - Arn

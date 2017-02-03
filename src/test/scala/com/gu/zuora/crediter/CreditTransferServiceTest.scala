@@ -3,11 +3,9 @@ package com.gu.zuora.crediter
 import com.gu.zuora.crediter.ModelReaders._
 import com.gu.zuora.crediter.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
 import com.gu.zuora.crediter.TestSoapClient.{getSuccessfulCreateResponse, getUnsuccessfulCreateResponseForHeadSource}
-import com.gu.zuora.crediter.Types.{CreditBalanceAdjustmentIDs, ZuoraSoapClient}
-import com.gu.zuora.soap.{CallOptions, Create, CreateResponse, CreditBalanceAdjustment, InvalidTypeFault, SaveResult, SessionHeader}
+import com.gu.zuora.crediter.Types.{CreditBalanceAdjustmentIDs, ZuoraSoapClientError}
+import com.gu.zuora.soap.{CreateResponse, CreditBalanceAdjustment, SaveResult, ZObjectable}
 import org.scalatest.FlatSpec
-
-import scalaxb.Soap11Fault
 
 class CreditTransferServiceTest extends FlatSpec {
 
@@ -105,7 +103,6 @@ class CreditTransferServiceTest extends FlatSpec {
       override val zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate)
     }
     val service = new CreditTransferService(mockCommand)
-    implicit val sessionHeader: SessionHeader = SessionHeader("foo")
     val created = service.createCreditBalanceAdjustments(adjustmentsToCreate)
     assert(created == Seq(
       s"Refunding-$testSubscriberId-A",
@@ -113,13 +110,17 @@ class CreditTransferServiceTest extends FlatSpec {
     ))
   }
 
-  it should "not create any createCreditBalanceAdjustments in Zuora when given no adjustments to create" in {
-    val adjustmentsToCreate = Seq.empty
+  it should "not attempt to create any createCreditBalanceAdjustments in Zuora when given no adjustments to create" in {
+    val adjustmentsToCreate = Seq.empty[CreditBalanceAdjustment]
     implicit val zuoraClients = new TestZuoraAPIClients {
-      override val zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate)
+      override val zuoraSoapClient: ZuoraSoapClient = new ZuoraSoapClient {
+        override def create(zObjects: Seq[ZObjectable]): Left[ZuoraSoapClientError, Nothing] = {
+          assert(false, "Should never call me")
+          Left("Should not have been called")
+        }
+      }
     }
     val service = new CreditTransferService(mockCommand)
-    implicit val sessionHeader: SessionHeader = SessionHeader("foo")
     val created = service.createCreditBalanceAdjustments(adjustmentsToCreate)
     assert(created.isEmpty)
   }
@@ -133,7 +134,6 @@ class CreditTransferServiceTest extends FlatSpec {
       override val zuoraSoapClient: ZuoraSoapClient = getUnsuccessfulCreateResponseForHeadSource(adjustmentsToCreate)
     }
     val service = new CreditTransferService(mockCommand)
-    implicit val sessionHeader: SessionHeader = SessionHeader("bar")
     val created = service.createCreditBalanceAdjustments(adjustmentsToCreate)
     assert(created == Seq(
       s"Refunding-$testSubscriberId-B"
@@ -163,10 +163,9 @@ class CreditTransferServiceTest extends FlatSpec {
 
     implicit val zuoraClients = new TestZuoraAPIClients {
       override val zuoraSoapClient = new TestSoapClient {
-        override def create(create: Create, callOptions: CallOptions, sessionHeader: SessionHeader): Either[Soap11Fault[InvalidTypeFault], CreateResponse] = {
-          val zObjects = create.zObjects
+        override def create(zObjects: Seq[ZObjectable]): Either[ZuoraSoapClientError, CreateResponse] = {
           assert(zObjects.size == source.size)
-          Right[Soap11Fault[InvalidTypeFault], CreateResponse](CreateResponse(
+          Right(CreateResponse(
             result = zObjects.map(adjustment => SaveResult(Id = adjustment.Id))
           ))
         }

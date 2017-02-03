@@ -3,7 +3,6 @@ package com.gu.zuora.crediter
 import java.util
 
 import com.gu.zuora.crediter.Models.{ExportFile, NegativeInvoiceFileLine}
-import com.gu.zuora.soap.Soap
 
 object Types {
   type ErrorMessage = String
@@ -14,6 +13,6 @@ object Types {
   type NegativeInvoiceReport = ExportFile[NegativeInvoiceFileLine]
   type SerialisedJson = String
   type ZOQLQueryFragment = String
+  type ZuoraSoapClientError = String
   type CreditBalanceAdjustmentIDs = Seq[String]
-  type ZuoraSoapClient = Soap
 }
