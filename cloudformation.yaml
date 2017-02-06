@@ -1,10 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: AWS Lambda - This Lambda finds negative invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill
 Parameters:
-  Stack:
-    Description: Stack name
-    Type: String
-    Default: subscriptions
   App:
     Description: Application name
     Type: String
@@ -16,10 +12,6 @@ Parameters:
       - PROD
       - UAT
     Default: UAT
-  RootIAMUser:
-    Description: The root IAM user's ARN
-    Type: String
-    Default: arn:aws:iam::[enter number here]:root
 
 Resources:
   ZuoraCrediterRole:
@@ -56,8 +48,7 @@ Resources:
         - Sid: Enable IAM User Permissions
           Effect: Allow
           Principal:
-            AWS:
-              !Ref RootIAMUser
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
           Action: kms:*
           Resource: "*"
         - Sid: Allow access for Key Administrators
@@ -103,7 +94,7 @@ Resources:
       Code:
         S3Bucket: subscriptions-dist
         S3Key:
-          !Sub ${Stack}/${Stage}/${App}/${App}.zip
+          !Sub subscriptions/${Stage}/${App}/${App}.zip
       Description: This Lambda finds negative invoices and converts them to be a credit on the customer's account so that the amount is deducted off their next positive bill.
       Handler: com.gu.zuora.crediter.Lambda::handleRequest
       MemorySize: 512

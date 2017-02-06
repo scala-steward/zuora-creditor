@@ -14,7 +14,7 @@ object Models {
     val selectForZOQL: ZOQLQueryFragment =
       "SELECT Subscription.Name, Invoice.InvoiceNumber, Invoice.InvoiceDate, Invoice.Balance " +
       "FROM InvoiceItem " +
-      "WHERE Invoice.Balance < 0 and Invoice.Status = 'Posted'"
+      "WHERE Invoice.Balance < 0 and Invoice.Status = 'Posted' and Subscription.AutoRenew = 'true'"
   }
   case class NegativeInvoiceToTransfer(invoiceNumber: String, invoiceBalance: BigDecimal, subscriberId: String) {
     val transferrableBalance: BigDecimal = if (invoiceBalance < 0) invoiceBalance * -1 else BigDecimal(0)
