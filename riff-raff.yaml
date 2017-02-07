@@ -3,7 +3,7 @@ stacks:
 regions:
 - eu-west-1
 deployments:
-  ZuoraCrediter:
+  zuora-crediter:
     type: aws-lambda
     parameters:
       fileName: zuora-crediter.jar

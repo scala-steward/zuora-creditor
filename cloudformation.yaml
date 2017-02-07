@@ -1,10 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: AWS Lambda - This Lambda finds negative invoices and converts them to be a credit on the user's account so that the amount is discounted off their next positive bill
 Parameters:
-  App:
-    Description: Application name
-    Type: String
-    Default: zuora-crediter
   Stage:
     Description: Stage name
     Type: String
@@ -40,10 +36,10 @@ Resources:
   LambdaKMSKey:
     Type: AWS::KMS::Key
     Properties:
-      Description: !Sub Used by the ${App}-${Stage} lambda to encrypt and decrypt its environment variables
+      Description: !Sub Used by the zuora-crediter-${Stage} lambda to encrypt and decrypt its environment variables
       KeyPolicy:
         Version: '2012-10-17'
-        Id: !Sub key-policy-${App}-${Stage}
+        Id: !Sub key-policy-zuora-crediter-${Stage}
         Statement:
         - Sid: Enable IAM User Permissions
           Effect: Allow
@@ -85,14 +81,14 @@ Resources:
   LambdaKMSKeyAlias:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: !Sub alias/${App}-kms
+      AliasName: !Sub alias/zuora-crediter-kms
       TargetKeyId: !Ref LambdaKMSKey
       DependsOn: LambdaKMSKey
 
   Lambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub ${App}-${Stage}
+      FunctionName: !Sub zuora-crediter-${Stage}
       Environment:
         Variables:
           ZuoraApiAccessKeyId: ""
@@ -101,7 +97,7 @@ Resources:
       Code:
         S3Bucket: subscriptions-dist
         S3Key:
-          !Sub subscriptions/${Stage}/${App}/${App}.jar
+          !Sub subscriptions/${Stage}/zuora-crediter/zuora-crediter.jar
       Description: This Lambda finds negative invoices and converts them to be a credit on the customer's account so that the amount is deducted off their next positive bill.
       Handler: com.gu.zuora.crediter.Lambda::handleRequest
       MemorySize: 512
