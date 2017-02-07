@@ -101,7 +101,7 @@ Resources:
       Code:
         S3Bucket: subscriptions-dist
         S3Key:
-          !Sub subscriptions/${Stage}/${App}/${App}.zip
+          !Sub subscriptions/${Stage}/${App}/${App}.jar
       Description: This Lambda finds negative invoices and converts them to be a credit on the customer's account so that the amount is deducted off their next positive bill.
       Handler: com.gu.zuora.crediter.Lambda::handleRequest
       MemorySize: 512
