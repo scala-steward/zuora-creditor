@@ -40,10 +40,10 @@ Resources:
   LambdaKMSKey:
     Type: AWS::KMS::Key
     Properties:
-      Description: !Sub Used by the zuora-crediter-${Stage} lambda to encrypt and decrypt its environment variables
+      Description: !Sub Used by the ${App}-${Stage} lambda to encrypt and decrypt its environment variables
       KeyPolicy:
         Version: '2012-10-17'
-        Id: !Sub key-policy-zuora-crediter-${Stage}
+        Id: !Sub key-policy-${App}-${Stage}
         Statement:
         - Sid: Enable IAM User Permissions
           Effect: Allow
@@ -82,10 +82,17 @@ Resources:
           - kms:DescribeKey
           Resource: "*"
 
+  LambdaKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${App}-kms
+      TargetKeyId: !Ref LambdaKMSKey
+      DependsOn: LambdaKMSKey
+
   Lambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub zuora-crediter-${Stage}
+      FunctionName: !Sub ${App}-${Stage}
       Environment:
         Variables:
           ZuoraApiAccessKeyId: ""

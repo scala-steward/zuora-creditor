@@ -49,7 +49,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
   "com.amazonaws" % "aws-java-sdk-kms" % "1.11.86",
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
-  "io.spray" %%  "spray-json" % "1.3.3",
+  "com.typesafe.play" %% "play-json" % "2.5.12",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
   "com.github.melrief" %% "purecsv" % "0.0.9",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
