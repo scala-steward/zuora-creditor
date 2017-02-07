@@ -8,5 +8,6 @@ deployments:
     parameters:
       fileName: zuora-crediter.jar
       bucket: zuora-crediter-dist
+      prefixStack: false
       functionNames:
       - zuora-crediter-
