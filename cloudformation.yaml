@@ -83,7 +83,7 @@ Resources:
     Properties:
       AliasName: !Sub alias/zuora-crediter-kms
       TargetKeyId: !Ref LambdaKMSKey
-      DependsOn: LambdaKMSKey
+    DependsOn: LambdaKMSKey
 
   Lambda:
     Type: AWS::Lambda::Function
