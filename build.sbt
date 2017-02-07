@@ -30,9 +30,6 @@ scalaxbDispatchVersion in (Compile, scalaxb) := dispatchV
 scalaxbPackageName in (Compile, scalaxb) := "com.gu.zuora.soap"
 scalaxbAsync in (Compile, scalaxb) := false
 
-topLevelDirectory in Universal := None
-packageName in Universal := normalizedName.value
-
 assemblyJarName := "zuora-crediter.jar"
 riffRaffPackageType := assembly.value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
