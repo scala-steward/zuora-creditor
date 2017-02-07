@@ -7,6 +7,6 @@ deployments:
     type: aws-lambda
     parameters:
       fileName: zuora-crediter.jar
-      bucket: subscriptions-dist
+      bucket: zuora-crediter-dist
       functionNames:
       - zuora-crediter-
