@@ -23,7 +23,7 @@ scalacOptions ++= Seq(
   "-Xfuture"
 )
 
-lazy val root = (project in file(".")).enablePlugins(ScalaxbPlugin, RiffRaffArtifact, JavaAppPackaging)
+lazy val root = (project in file(".")).enablePlugins(ScalaxbPlugin, RiffRaffArtifact)
 val dispatchV = "0.11.3" // change this to appropriate dispatch version
 
 scalaxbDispatchVersion in (Compile, scalaxb) := dispatchV
@@ -33,7 +33,8 @@ scalaxbAsync in (Compile, scalaxb) := false
 topLevelDirectory in Universal := None
 packageName in Universal := normalizedName.value
 
-riffRaffPackageType := (packageZipTarball in config("universal")).value
+assemblyJarName := "zuora-crediter.jar"
+riffRaffPackageType := assembly.value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
 riffRaffManifestProjectName := "MemSub::Membership Admin::Zuora Crediter"

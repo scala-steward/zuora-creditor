@@ -6,12 +6,7 @@ deployments:
   ZuoraCrediter:
     type: aws-lambda
     parameters:
-      fileName: zuora-crediter.zip
+      fileName: zuora-crediter.jar
       bucket: subscriptions-dist
-      functions:
-        UAT:
-          name: Zuora-Crediter-UAT
-          filename: zuora-crediter-assembly.zip
-        PROD:
-          name: Zuora-Crediter-PROD
-          filename: zuora-crediter.zip
+      functionNames:
+      - zuora-crediter-
