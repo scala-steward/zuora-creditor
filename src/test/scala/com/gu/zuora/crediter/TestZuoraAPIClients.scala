@@ -11,8 +11,8 @@ class TestSoapClient extends ZuoraSoapClient {
 
 object TestSoapClient {
 
-  def getSuccessfulCreateResponse(source: Seq[Any], maxOverride: Int = 50, counter: AtomicInteger = new AtomicInteger) = new ZuoraSoapClient {
-    override val maxNumberOfCreateObjects: Int = maxOverride
+  def getSuccessfulCreateResponse(source: Seq[Any], batchSizeOverride: Int = 50, counter: AtomicInteger = new AtomicInteger) = new ZuoraSoapClient {
+    override val maxNumberOfCreateObjects: Int = batchSizeOverride
     override def create(zObjects: Seq[ZObjectable]): Either[ZuoraSoapClientError, CreateResponse] = {
       assert(if (source.size <= maxNumberOfCreateObjects) zObjects.size == source.size else zObjects.size <= maxNumberOfCreateObjects)
       counter.incrementAndGet()

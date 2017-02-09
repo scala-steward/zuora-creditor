@@ -67,7 +67,7 @@ class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(impli
 
   def createCreditBalanceAdjustments(adjustmentsToMake: Seq[CreditBalanceAdjustment]): CreditBalanceAdjustmentIDs = {
     val soapClient = zuoraClients.zuoraSoapClient
-    val batches = adjustmentsToMake.grouped(soapClient.maxNumberOfCreateObjects).toSeq
+    val batches = adjustmentsToMake.grouped(soapClient.maxNumberOfCreateObjects).toList // ensures eagerness
     batches.flatMap { adjustments =>
       val createResponse = soapClient.create(adjustments)
       if (createResponse.isLeft) {
