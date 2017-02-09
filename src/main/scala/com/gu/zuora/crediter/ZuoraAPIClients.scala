@@ -22,6 +22,8 @@ trait ZuoraRestClient {
 }
 
 trait ZuoraSoapClient {
+  // https://knowledgecenter.zuora.com/DC_Developers/SOAP_API/E_SOAP_API_Calls/create_call
+  val maxNumberOfCreateObjects = 50
   def create(zObjects: Seq[ZObjectable]): Either[ZuoraSoapClientError, CreateResponse]
 }
 

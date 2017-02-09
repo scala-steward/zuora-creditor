@@ -89,11 +89,6 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub zuora-crediter-${Stage}
-      Environment:
-        Variables:
-          ZuoraApiAccessKeyId: ""
-          ZuoraApiSecretAccessKey: ""
-          ZuoraApiHost: ""
       Code:
         S3Bucket: subscriptions-dist
         S3Key:

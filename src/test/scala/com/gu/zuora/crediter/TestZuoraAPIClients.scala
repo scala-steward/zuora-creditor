@@ -1,6 +1,8 @@
 package com.gu.zuora.crediter
 
-import com.gu.zuora.crediter.Types.{RawCSVText, ZuoraSoapClientError, SerialisedJson}
+import java.util.concurrent.atomic.AtomicInteger
+
+import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZuoraSoapClientError}
 import com.gu.zuora.soap.{CreateResponse, Error, SaveResult, ZObjectable}
 
 class TestSoapClient extends ZuoraSoapClient {
@@ -9,9 +11,11 @@ class TestSoapClient extends ZuoraSoapClient {
 
 object TestSoapClient {
 
-  def getSuccessfulCreateResponse(source: Seq[Any]) = new ZuoraSoapClient {
+  def getSuccessfulCreateResponse(source: Seq[Any], maxOverride: Int = 50, counter: AtomicInteger = new AtomicInteger) = new ZuoraSoapClient {
+    override val maxNumberOfCreateObjects: Int = maxOverride
     override def create(zObjects: Seq[ZObjectable]): Either[ZuoraSoapClientError, CreateResponse] = {
-      assert(zObjects.size == source.size)
+      assert(if (source.size <= maxNumberOfCreateObjects) zObjects.size == source.size else zObjects.size <= maxNumberOfCreateObjects)
+      counter.incrementAndGet()
       Right(CreateResponse(
         result = zObjects.map(obj => SaveResult(Id = obj.Id))
       ))
