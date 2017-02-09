@@ -1,5 +1,7 @@
 package com.gu.zuora.crediter
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import com.gu.zuora.crediter.ModelReaders._
 import com.gu.zuora.crediter.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
 import com.gu.zuora.crediter.TestSoapClient.{getSuccessfulCreateResponse, getUnsuccessfulCreateResponseForHeadSource}
@@ -99,14 +101,38 @@ class CreditTransferServiceTest extends FlatSpec {
       CreditBalanceAdjustment(Id = Some(Some(s"Refunding-$testSubscriberId-A"))),
       CreditBalanceAdjustment(Id = Some(Some(s"Refunding-$testSubscriberId-B")))
     )
+    val numberOfCalls = new AtomicInteger
     implicit val zuoraClients = new TestZuoraAPIClients {
-      override val zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate)
+      override val zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate, adjustmentsToCreate.length, numberOfCalls)
     }
     val service = new CreditTransferService(mockCommand)
     val created = service.createCreditBalanceAdjustments(adjustmentsToCreate)
+    assert(numberOfCalls.intValue() == 1)
+    assert(created.length == 2)
     assert(created == Seq(
       s"Refunding-$testSubscriberId-A",
       s"Refunding-$testSubscriberId-B"
+    ))
+  }
+
+  it should "process createCreditBalanceAdjustments in batches of 2" in {
+    val adjustmentsToCreate = Seq(
+      CreditBalanceAdjustment(Id = Some(Some(s"Refunding-$testSubscriberId-A"))),
+      CreditBalanceAdjustment(Id = Some(Some(s"Refunding-$testSubscriberId-B"))),
+      CreditBalanceAdjustment(Id = Some(Some(s"Refunding-$testSubscriberId-C")))
+    )
+    val numberOfCalls = new AtomicInteger
+    implicit val zuoraClients = new TestZuoraAPIClients {
+      override val zuoraSoapClient: ZuoraSoapClient = getSuccessfulCreateResponse(adjustmentsToCreate, 2, numberOfCalls)
+    }
+    val service = new CreditTransferService(mockCommand)
+    val created = service.createCreditBalanceAdjustments(adjustmentsToCreate)
+    assert(numberOfCalls.intValue() == 2) // also tests eager evaluation
+    assert(created.length == 3)
+    assert(created == Seq(
+      s"Refunding-$testSubscriberId-A",
+      s"Refunding-$testSubscriberId-B",
+      s"Refunding-$testSubscriberId-C"
     ))
   }
 

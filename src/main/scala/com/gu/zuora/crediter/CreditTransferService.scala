@@ -58,16 +58,18 @@ class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(impli
       val adjustmentsToMake = invoicesToCredit.map(command.createCreditBalanceAdjustment)
       val createdAdjustments = createCreditBalanceAdjustments(adjustmentsToMake)
 
-      logger.info(s"Successfully created ${createdAdjustments.length} Credit Balance Adjustments with IDs: ${createdAdjustments.mkString(", ")}")
+      logger.info(s"Successfully created ${createdAdjustments.size} Credit Balance Adjustments with IDs: ${createdAdjustments.mkString(", ")}")
       createdAdjustments
     } else {
       Seq.empty
     }
   }
 
-  def createCreditBalanceAdjustments(adjustments: Seq[CreditBalanceAdjustment]): CreditBalanceAdjustmentIDs = {
-    if (adjustments.nonEmpty) {
-      val createResponse = zuoraClients.zuoraSoapClient.create(adjustments)
+  def createCreditBalanceAdjustments(adjustmentsToMake: Seq[CreditBalanceAdjustment]): CreditBalanceAdjustmentIDs = {
+    val soapClient = zuoraClients.zuoraSoapClient
+    val batches = adjustmentsToMake.grouped(soapClient.maxNumberOfCreateObjects).toList // ensures eagerness
+    batches.flatMap { adjustments =>
+      val createResponse = soapClient.create(adjustments)
       if (createResponse.isLeft) {
         logger.error(s"Unable to create any Credit Balance Adjustments. Reason: ${createResponse.left.get}")
       }
@@ -82,8 +84,6 @@ class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(impli
         maybeId.foreach(id => logger.info(s"Successfully created Credit Balance Adjustment, ID: $id"))
         maybeId
       }).flatten
-    } else {
-      Seq.empty[String]
     }
   }
 
