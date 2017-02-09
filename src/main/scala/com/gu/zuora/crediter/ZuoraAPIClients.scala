@@ -1,6 +1,7 @@
 package com.gu.zuora.crediter
 
 import java.lang.System.getenv
+import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
@@ -60,9 +61,15 @@ object ZuoraAPIClientsFromEnvironment extends ZuoraAPIClients with Logging {
 
     private val soapCallOptions = CallOptions(useSingleTransaction = Some(Some(false)))
 
+    private val endpoint = s"https://${if (!zuoraApiHost.startsWith("apisandbox")) "api." else ""}$zuoraApiHost/apps/services/a/83.0"
+
+    logger.info(s"Instantiating SOAP client to endpoint: $endpoint")
+
     private val service: Soap = new com.gu.zuora.soap.SoapBindings with scalaxb.Soap11Clients with scalaxb.DispatchHttpClients {
-      override def baseAddress = new java.net.URI(s"https://$zuoraApiHost/apps/services/a/83.0")
+      override def baseAddress: URI = URI.create(endpoint)
     }.service
+
+    logger.info(s"Instantiated SOAP client successfully")
 
     private val sessionHeader = {
       val loginResponse = service.login(Some(zuoraApiAccessKeyId), Some(zuoraApiSecretAccessKey))

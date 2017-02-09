@@ -23,17 +23,15 @@ scalacOptions ++= Seq(
   "-Xfuture"
 )
 
-lazy val root = (project in file(".")).enablePlugins(ScalaxbPlugin, RiffRaffArtifact, JavaAppPackaging)
+lazy val root = (project in file(".")).enablePlugins(ScalaxbPlugin, RiffRaffArtifact)
 val dispatchV = "0.11.3" // change this to appropriate dispatch version
 
 scalaxbDispatchVersion in (Compile, scalaxb) := dispatchV
 scalaxbPackageName in (Compile, scalaxb) := "com.gu.zuora.soap"
 scalaxbAsync in (Compile, scalaxb) := false
 
-topLevelDirectory in Universal := None
-packageName in Universal := normalizedName.value
-
-riffRaffPackageType := (packageZipTarball in config("universal")).value
+assemblyJarName := "zuora-crediter.jar"
+riffRaffPackageType := assembly.value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
 riffRaffManifestProjectName := "MemSub::Membership Admin::Zuora Crediter"
@@ -49,7 +47,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
   "com.amazonaws" % "aws-java-sdk-kms" % "1.11.86",
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
-  "io.spray" %%  "spray-json" % "1.3.3",
+  "com.typesafe.play" %% "play-json" % "2.5.12",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
   "com.github.melrief" %% "purecsv" % "0.0.9",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"

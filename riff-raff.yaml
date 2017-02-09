@@ -3,15 +3,11 @@ stacks:
 regions:
 - eu-west-1
 deployments:
-  ZuoraCrediter:
+  zuora-crediter:
     type: aws-lambda
     parameters:
-      fileName: zuora-crediter.zip
+      fileName: zuora-crediter.jar
       bucket: subscriptions-dist
-      functions:
-        UAT:
-          name: Zuora-Crediter-UAT
-          filename: zuora-crediter-assembly.zip
-        PROD:
-          name: Zuora-Crediter-PROD
-          filename: zuora-crediter.zip
+      prefixStack: false
+      functionNames:
+      - zuora-crediter-

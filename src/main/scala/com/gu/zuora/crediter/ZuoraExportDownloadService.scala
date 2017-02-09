@@ -1,10 +1,11 @@
 package com.gu.zuora.crediter
 
 import com.gu.zuora.crediter.Types.{ExportId, FileId, RawCSVText, SerialisedJson}
-import spray.json.{DefaultJsonProtocol => DJP, _}
+import play.api.libs.json.Json.parse
+
+import scala.util.Try
 
 class ZuoraExportDownloadService(implicit zuoraRestClient: ZuoraRestClient) extends Logging {
-  import DJP._
 
   def downloadGeneratedExportFile(exportId: ExportId): Option[RawCSVText] = {
     Option(exportId).filter(_.nonEmpty).flatMap { validExportId =>
@@ -20,7 +21,7 @@ class ZuoraExportDownloadService(implicit zuoraRestClient: ZuoraRestClient) exte
   private def getZuoraExport(exportId: ExportId) = zuoraRestClient.makeRestGET(s"object/export/$exportId")
 
   private def extractFileId(response: SerialisedJson) =
-    response.parseJson.asJsObject.getFields("FileId").headOption.map(_.convertTo[FileId]).filter(_.nonEmpty)
+    Try((parse(response) \ "FileId").asOpt[String]).toOption.flatten.filter(_.nonEmpty)
 
   private def downloadExportFile(fileId: FileId) = zuoraRestClient.downloadFile(s"file/$fileId")
 }

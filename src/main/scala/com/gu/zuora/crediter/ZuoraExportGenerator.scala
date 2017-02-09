@@ -2,7 +2,7 @@ package com.gu.zuora.crediter
 
 import com.gu.zuora.crediter.Models.ExportCommand
 import com.gu.zuora.crediter.Types.{ExportId, SerialisedJson}
-import spray.json.{DefaultJsonProtocol => DJP, _}
+import play.api.libs.json.Json.parse
 
 import scala.util.Try
 
@@ -28,10 +28,6 @@ class ZuoraExportGenerator(command: ExportCommand)(implicit zuoraRestClient: Zuo
   }
 
   def extractExportId(response: SerialisedJson): Option[ExportId] = {
-    import DJP._
-
-    Try {
-      response.parseJson.asJsObject.getFields("Id").headOption.map(_.convertTo[ExportId])
-    }.toOption.flatten.filter(_.nonEmpty)
+    Try((parse(response) \ "Id").asOpt[String]).toOption.flatten.filter(_.nonEmpty)
   }
 }
