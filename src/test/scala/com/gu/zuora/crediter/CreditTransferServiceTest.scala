@@ -107,8 +107,8 @@ class CreditTransferServiceTest extends FlatSpec {
     }
     val service = new CreditTransferService(mockCommand)
     val created = service.createCreditBalanceAdjustments(adjustmentsToCreate)
-    assert(created.length == 2) // also forces eager evaluation of Seq
     assert(numberOfCalls.intValue() == 1)
+    assert(created.length == 2)
     assert(created == Seq(
       s"Refunding-$testSubscriberId-A",
       s"Refunding-$testSubscriberId-B"
@@ -127,8 +127,8 @@ class CreditTransferServiceTest extends FlatSpec {
     }
     val service = new CreditTransferService(mockCommand)
     val created = service.createCreditBalanceAdjustments(adjustmentsToCreate)
-    assert(created.length == 3) // also forces eager evaluation of Seq
-    assert(numberOfCalls.intValue() == 2)
+    assert(numberOfCalls.intValue() == 2) // also tests eager evaluation
+    assert(created.length == 3)
     assert(created == Seq(
       s"Refunding-$testSubscriberId-A",
       s"Refunding-$testSubscriberId-B",
