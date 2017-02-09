@@ -53,7 +53,7 @@ class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(impli
       // Sort by invoice name to help with logging, we're going to credit them in order of their invoice number
       val invoicesToCredit = invoices.toSeq.sortBy(_.invoiceNumber)
       val allInvoiceNumbers = invoicesToCredit.map(a => s"${a.invoiceNumber} (${a.invoiceBalance})").mkString(", ")
-      logger.info(s"Attempting to create ${invoicesToCredit.length} Credit Balance Adjustments for Invoices: $allInvoiceNumbers")
+      logger.info(s"Creating ${invoicesToCredit.length} Credit Balance Adjustments for Invoices: $allInvoiceNumbers")
 
       val adjustmentsToMake = invoicesToCredit.map(command.createCreditBalanceAdjustment)
       val createdAdjustments = createCreditBalanceAdjustments(adjustmentsToMake)
@@ -69,6 +69,7 @@ class CreditTransferService(command: CreateCreditBalanceAdjustmentCommand)(impli
     val soapClient = zuoraClients.zuoraSoapClient
     val batches = adjustmentsToMake.grouped(soapClient.maxNumberOfCreateObjects).toList // ensures eagerness
     batches.flatMap { adjustments =>
+      logger.info(s"Attempting to create ${adjustments.length} Credit Balance Adjustments for Invoices: ${adjustments.flatMap(_.SourceTransactionNumber).mkString(", ")}")
       val createResponse = soapClient.create(adjustments)
       if (createResponse.isLeft) {
         logger.error(s"Unable to create any Credit Balance Adjustments. Reason: ${createResponse.left.get}")
