@@ -1,4 +1,4 @@
-# Zuora negative invoice crediter
+# Zuora Creditor
 
 This repository contains a Scala-based code API to handle the process of downloading a report of negative invoices from Zuora and transferring their balance into an account credit.
 
@@ -11,7 +11,7 @@ The code is structured in a way that an implementing class only need to:
 - Configure how they want to generate a `CreditBalanceAdjustment` by extending the `CreateCreditBalanceAdjustmentCommand` trait which has a method which takes a single `NegativeInvoiceToTransfer` case class to start with.
 - Write your own main file or AWS Lambda function to orchestrate the stages of the process.
  
-The repository contains the implementation of a specific use case of this process, which targets negative holiday suspension invoices. It has a main method for local testing and an AWS Lambda incorporated into the build system for deploying to production. See the Home Delivery Suspension Scala trait overrides: [src/main/resources/scala/com/gu/zuora/crediter/holidaysuspension/...](https://github.com/guardian/zuora-crediter/tree/master/src/main/scala/com/gu/zuora/crediter/holidaysuspension).
+The repository contains the implementation of a specific use case of this process, which targets negative holiday suspension invoices. It has a main method for local testing and an AWS Lambda incorporated into the build system for deploying to production. See the Home Delivery Suspension Scala trait overrides: [src/main/resources/scala/com/gu/zuora/creditor/holidaysuspension/...](https://github.com/guardian/zuora-creditor/tree/master/src/main/scala/com/gu/zuora/creditor/holidaysuspension).
  
 # Usage
 
@@ -21,12 +21,6 @@ Run `sbt assembly` to generate the Home Delivery Holiday Suspension AWS Lambda j
 # Credits
 
 This project generates the sources for a synchronous SOAP client API from the Zuora83.wsdl using [http://scalaxb.org/](scalaxb.org),  wraps a lightweight HTTP client called: [https://github.com/scalaj/scalaj-http](scalaj-http) and uses [PureCSV](https://github.com/melrief/PureCSV) for reading the Zuora Export file into a case class.
-
-### Still to do:
-
-- CloudFormation for the Home Delivery Holiday Suspension AWS Lambda function.
-- Any tweaks to get [Riff-Raff](https://github.com/guardian/riff-raff) working to deploy the above Lambda function.
-
 
 
 

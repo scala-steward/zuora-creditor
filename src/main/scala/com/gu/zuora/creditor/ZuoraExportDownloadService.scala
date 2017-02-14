@@ -1,6 +1,6 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
-import com.gu.zuora.crediter.Types.{ExportId, FileId, RawCSVText, SerialisedJson}
+import com.gu.zuora.creditor.Types.{ExportId, FileId, RawCSVText, SerialisedJson}
 import play.api.libs.json.Json.parse
 
 import scala.util.Try

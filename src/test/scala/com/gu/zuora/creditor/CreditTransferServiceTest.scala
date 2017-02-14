@@ -1,11 +1,11 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.gu.zuora.crediter.ModelReaders._
-import com.gu.zuora.crediter.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
-import com.gu.zuora.crediter.TestSoapClient.{getSuccessfulCreateResponse, getUnsuccessfulCreateResponseForHeadSource}
-import com.gu.zuora.crediter.Types.{CreditBalanceAdjustmentIDs, ZuoraSoapClientError}
+import com.gu.zuora.creditor.ModelReaders._
+import com.gu.zuora.creditor.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
+import com.gu.zuora.creditor.TestSoapClient.{getSuccessfulCreateResponse, getUnsuccessfulCreateResponseForHeadSource}
+import com.gu.zuora.creditor.Types.{CreditBalanceAdjustmentIDs, ZuoraSoapClientError}
 import com.gu.zuora.soap.{CreateResponse, CreditBalanceAdjustment, SaveResult, ZObjectable}
 import org.scalatest.FlatSpec
 

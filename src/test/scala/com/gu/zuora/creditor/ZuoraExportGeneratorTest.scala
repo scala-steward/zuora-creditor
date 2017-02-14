@@ -1,7 +1,7 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
-import com.gu.zuora.crediter.Models.ExportCommand
-import com.gu.zuora.crediter.Types.SerialisedJson
+import com.gu.zuora.creditor.Models.ExportCommand
+import com.gu.zuora.creditor.Types.SerialisedJson
 import org.scalatest.FlatSpec
 
 class ZuoraExportGeneratorTest extends FlatSpec {

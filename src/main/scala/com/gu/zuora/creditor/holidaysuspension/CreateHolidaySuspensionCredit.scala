@@ -1,6 +1,6 @@
-package com.gu.zuora.crediter.holidaysuspension
+package com.gu.zuora.creditor.holidaysuspension
 
-import com.gu.zuora.crediter.Models.{CreateCreditBalanceAdjustmentCommand, NegativeInvoiceToTransfer}
+import com.gu.zuora.creditor.Models.{CreateCreditBalanceAdjustmentCommand, NegativeInvoiceToTransfer}
 import com.gu.zuora.soap.CreditBalanceAdjustment
 
 object CreateHolidaySuspensionCredit extends CreateCreditBalanceAdjustmentCommand {

@@ -1,4 +1,4 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
 import org.apache.log4j.Logger
 

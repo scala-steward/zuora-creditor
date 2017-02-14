@@ -1,6 +1,6 @@
-package com.gu.zuora.crediter.holidaysuspension
+package com.gu.zuora.creditor.holidaysuspension
 
-import com.gu.zuora.crediter.Lambda
+import com.gu.zuora.creditor.Lambda
 
 import scala.collection.JavaConverters._
 

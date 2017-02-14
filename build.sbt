@@ -1,4 +1,4 @@
-name := "zuora-crediter"
+name := "zuora-creditor"
 description:= "This project contains a set of services and Lambda functions which find negative invoices and converts " +
   "them into a credit balance on the user's account, so that the amount is discounted off their next positive bill"
 version       := "0.0.1"
@@ -30,11 +30,11 @@ scalaxbDispatchVersion in (Compile, scalaxb) := dispatchV
 scalaxbPackageName in (Compile, scalaxb) := "com.gu.zuora.soap"
 scalaxbAsync in (Compile, scalaxb) := false
 
-assemblyJarName := "zuora-crediter.jar"
+assemblyJarName := "zuora-creditor.jar"
 riffRaffPackageType := assembly.value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
-riffRaffManifestProjectName := "MemSub::Membership Admin::Zuora Crediter"
+riffRaffManifestProjectName := "MemSub::Membership Admin::Zuora Creditor"
 
 addCommandAlias("dist", ";riffRaffArtifact")
 

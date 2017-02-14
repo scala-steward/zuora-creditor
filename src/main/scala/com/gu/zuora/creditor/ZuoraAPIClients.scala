@@ -1,4 +1,4 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
 import java.lang.System.getenv
 import java.net.URI
@@ -8,7 +8,7 @@ import java.nio.charset.Charset
 import com.amazonaws.services.kms.AWSKMSClientBuilder
 import com.amazonaws.services.kms.model.DecryptRequest
 import com.amazonaws.util.Base64
-import com.gu.zuora.crediter.Types.{RawCSVText, ZuoraSoapClientError, SerialisedJson}
+import com.gu.zuora.creditor.Types.{RawCSVText, ZuoraSoapClientError, SerialisedJson}
 import com.gu.zuora.soap.{CallOptions, Create, CreateResponse, SessionHeader, Soap, ZObjectable}
 
 import scala.reflect.internal.util.StringOps
