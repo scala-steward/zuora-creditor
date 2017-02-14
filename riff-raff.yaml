@@ -3,11 +3,11 @@ stacks:
 regions:
 - eu-west-1
 deployments:
-  zuora-crediter:
+  zuora-creditor:
     type: aws-lambda
     parameters:
-      fileName: zuora-crediter.jar
+      fileName: zuora-creditor.jar
       bucket: subscriptions-dist
       prefixStack: false
       functionNames:
-      - zuora-crediter-
+      - zuora-creditor-

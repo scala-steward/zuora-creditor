@@ -1,7 +1,7 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
-import com.gu.zuora.crediter.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
-import com.gu.zuora.crediter.Types.{CreditBalanceAdjustmentIDs, ErrorMessage, ExportId, NegativeInvoiceReport}
+import com.gu.zuora.creditor.Models.{CreateCreditBalanceAdjustmentCommand, ExportFile, NegativeInvoiceFileLine, NegativeInvoiceToTransfer}
+import com.gu.zuora.creditor.Types.{CreditBalanceAdjustmentIDs, ErrorMessage, ExportId, NegativeInvoiceReport}
 import com.gu.zuora.soap.CreditBalanceAdjustment
 
 import scala.math.BigDecimal.RoundingMode.UP

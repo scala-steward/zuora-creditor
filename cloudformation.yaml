@@ -10,9 +10,10 @@ Parameters:
     Default: CODE
 
 Resources:
-  ZuoraCrediterRole:
+  ZuoraCreditorRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Sub zuora-creditor-${Stage}
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -36,10 +37,10 @@ Resources:
   LambdaKMSKey:
     Type: AWS::KMS::Key
     Properties:
-      Description: !Sub Used by the zuora-crediter-${Stage} lambda to encrypt and decrypt its environment variables
+      Description: !Sub Used by the zuora-creditor-${Stage} lambda to encrypt and decrypt its environment variables
       KeyPolicy:
         Version: '2012-10-17'
-        Id: !Sub key-policy-zuora-crediter-${Stage}
+        Id: !Sub key-policy-zuora-creditor-${Stage}
         Statement:
         - Sid: Enable IAM User Permissions
           Effect: Allow
@@ -68,7 +69,7 @@ Resources:
           Principal:
             AWS:
               Fn::GetAtt:
-              - ZuoraCrediterRole
+              - ZuoraCreditorRole
               - Arn
           Action:
           - kms:Encrypt
@@ -81,22 +82,22 @@ Resources:
   LambdaKMSKeyAlias:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: !Sub alias/zuora-crediter-kms
+      AliasName: !Sub alias/zuora-creditor-kms-${Stage}
       TargetKeyId: !Ref LambdaKMSKey
     DependsOn: LambdaKMSKey
 
   Lambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub zuora-crediter-${Stage}
+      FunctionName: !Sub zuora-creditor-${Stage}
       Code:
         S3Bucket: subscriptions-dist
         S3Key:
-          !Sub subscriptions/${Stage}/zuora-crediter/zuora-crediter.jar
+          !Sub subscriptions/${Stage}/zuora-creditor/zuora-creditor.jar
       Description: This Lambda finds negative invoices and converts them to be a credit on the customer's account so that the amount is deducted off their next positive bill.
-      Handler: com.gu.zuora.crediter.Lambda::handleRequest
+      Handler: com.gu.zuora.creditor.Lambda::handleRequest
       MemorySize: 512
-      Role: !GetAtt ZuoraCrediterRole.Arn
+      Role: !GetAtt ZuoraCreditorRole.Arn
       Runtime: java8
       Timeout: 60
       KmsKeyArn:

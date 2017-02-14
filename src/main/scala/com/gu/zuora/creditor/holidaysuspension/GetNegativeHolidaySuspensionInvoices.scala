@@ -1,10 +1,10 @@
-package com.gu.zuora.crediter.holidaysuspension
+package com.gu.zuora.creditor.holidaysuspension
 import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 
-import com.gu.zuora.crediter.Models.ExportCommand
-import com.gu.zuora.crediter.Models.NegativeInvoiceFileLine.selectForZOQL
-import com.gu.zuora.crediter.Types.SerialisedJson
+import com.gu.zuora.creditor.Models.ExportCommand
+import com.gu.zuora.creditor.Models.NegativeInvoiceFileLine.selectForZOQL
+import com.gu.zuora.creditor.Types.SerialisedJson
 import play.api.libs.json.Json
 
 case object GetNegativeHolidaySuspensionInvoices extends ExportCommand {

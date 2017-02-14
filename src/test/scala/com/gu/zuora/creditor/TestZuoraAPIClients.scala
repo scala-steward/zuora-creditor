@@ -1,8 +1,8 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZuoraSoapClientError}
+import com.gu.zuora.creditor.Types.{RawCSVText, SerialisedJson, ZuoraSoapClientError}
 import com.gu.zuora.soap.{CreateResponse, Error, SaveResult, ZObjectable}
 
 class TestSoapClient extends ZuoraSoapClient {

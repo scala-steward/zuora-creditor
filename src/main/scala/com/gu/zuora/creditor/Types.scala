@@ -1,8 +1,8 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
 import java.util
 
-import com.gu.zuora.crediter.Models.{ExportFile, NegativeInvoiceFileLine}
+import com.gu.zuora.creditor.Models.{ExportFile, NegativeInvoiceFileLine}
 
 object Types {
   type ErrorMessage = String

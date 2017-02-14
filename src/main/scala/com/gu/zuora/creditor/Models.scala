@@ -1,7 +1,7 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
-import com.gu.zuora.crediter.Models.NegativeInvoiceFileLine
-import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson, ZOQLQueryFragment}
+import com.gu.zuora.creditor.Models.NegativeInvoiceFileLine
+import com.gu.zuora.creditor.Types.{RawCSVText, SerialisedJson, ZOQLQueryFragment}
 import com.gu.zuora.soap.CreditBalanceAdjustment
 import purecsv.unsafe
 import purecsv.unsafe.CSVReader

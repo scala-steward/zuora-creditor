@@ -1,6 +1,6 @@
-package com.gu.zuora.crediter
+package com.gu.zuora.creditor
 
-import com.gu.zuora.crediter.Types.{RawCSVText, SerialisedJson}
+import com.gu.zuora.creditor.Types.{RawCSVText, SerialisedJson}
 import org.scalatest.FlatSpec
 
 class ZuoraExportDownloadServiceTest extends FlatSpec {
