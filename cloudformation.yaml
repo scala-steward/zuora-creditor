@@ -84,23 +84,67 @@ Resources:
     Properties:
       AliasName: !Sub alias/zuora-creditor-kms-${Stage}
       TargetKeyId: !Ref LambdaKMSKey
-    DependsOn: LambdaKMSKey
 
-  Lambda:
+  ZuoraCreditorLambda:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub zuora-creditor-${Stage}
       Code:
         S3Bucket: subscriptions-dist
-        S3Key:
-          !Sub subscriptions/${Stage}/zuora-creditor/zuora-creditor.jar
+        S3Key: !Sub subscriptions/${Stage}/zuora-creditor/zuora-creditor.jar
       Description: This Lambda finds negative invoices and converts them to be a credit on the customer's account so that the amount is deducted off their next positive bill.
       Handler: com.gu.zuora.creditor.Lambda::handleRequest
       MemorySize: 512
       Role: !GetAtt ZuoraCreditorRole.Arn
       Runtime: java8
       Timeout: 60
-      KmsKeyArn:
-        Fn::GetAtt:
-        - LambdaKMSKey
-        - Arn
+      KmsKeyArn: !GetAtt LambdaKMSKey.Arn
+
+  ZuoraCreditorStepFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub zuora-creditor-step-function-role-${Stage}
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+               - states.eu-west-1.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub zuora-creditor-step-function-policy-${Stage}
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - lambda:InvokeFunction
+
+  ZuoraCreditorStepFunction:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      RoleArn: !GetAtt ZuoraCreditorStepFunctionRole.Arn
+      DefinitionString: !Sub |
+        {
+          "Comment": "A state machine to orchestrate the zuora-creditor Lambda, holding state between invocations to allow a background job in Zuora to complete between those invocations.",
+          "StartAt": "FirstState",
+          "States": {
+            "FirstState": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:zuora-creditor-${Stage}",
+              "Next": "wait_using_seconds"
+            },
+            "wait_using_seconds": {
+              "Type": "Wait",
+              "Seconds": 60,
+              "Next": "FinalState"
+            },
+            "FinalState": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:zuora-creditor-${Stage}",
+              "End": true
+            }
+          }
+        }
