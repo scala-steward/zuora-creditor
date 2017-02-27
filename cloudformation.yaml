@@ -138,7 +138,7 @@ Resources:
             },
             "wait_using_seconds": {
               "Type": "Wait",
-              "Seconds": 60,
+              "Seconds": 500,
               "Next": "FinalState"
             },
             "FinalState": {
