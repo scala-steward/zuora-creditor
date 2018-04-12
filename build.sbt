@@ -51,6 +51,7 @@ libraryDependencies ++= Seq(
   "org.scalaj" %% "scalaj-http" % "2.3.0",
   "com.github.melrief" %% "purecsv" % "0.0.9",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.11.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.8.8",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "io.netty" % "netty" % "3.10.3.Final"
 )
