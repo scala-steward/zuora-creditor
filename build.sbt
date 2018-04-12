@@ -24,7 +24,7 @@ scalacOptions ++= Seq(
 )
 
 lazy val root = (project in file(".")).enablePlugins(ScalaxbPlugin, RiffRaffArtifact)
-val dispatchV = "0.11.4" // change this to appropriate dispatch version
+val dispatchV = "0.11.3" // change this to appropriate dispatch version
 
 scalaxbDispatchVersion in (Compile, scalaxb) := dispatchV
 scalaxbPackageName in (Compile, scalaxb) := "com.gu.zuora.soap"
@@ -47,11 +47,12 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
   "com.amazonaws" % "aws-java-sdk-kms" % "1.11.86",
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
-  "com.typesafe.play" %% "play-json" % "2.6.0",
+  "com.typesafe.play" %% "play-json" % "2.5.12",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
   "com.github.melrief" %% "purecsv" % "0.0.9",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.11.1",
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+  "io.netty" % "netty" % "3.10.3.Final"
 )
 
 initialize := {
