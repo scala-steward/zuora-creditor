@@ -50,8 +50,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.5.12",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
   "com.github.melrief" %% "purecsv" % "0.0.9",
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.11.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.8.8",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.7",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.7", // added for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.9.7",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
   "io.netty" % "netty" % "3.10.3.Final",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
