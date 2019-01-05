@@ -24,7 +24,7 @@ scalacOptions ++= Seq(
 )
 
 lazy val root = (project in file(".")).enablePlugins(ScalaxbPlugin, RiffRaffArtifact)
-val dispatchV = "0.11.3" // TODO - Needs upgrading to 0.13.x and generation code changing to accommodate.
+val dispatchV = "0.11.4" // TODO - Needs upgrading to 0.13.x and generation code changing to accommodate.
 
 scalaxbDispatchVersion in (Compile, scalaxb) := dispatchV
 scalaxbPackageName in (Compile, scalaxb) := "com.gu.zuora.soap"
