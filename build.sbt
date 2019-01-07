@@ -1,8 +1,8 @@
 name := "zuora-creditor"
 description:= "This project contains a set of services and Lambda functions which find negative invoices and converts " +
   "them into a credit balance on the user's account, so that the amount is discounted off their next positive bill"
-version       := "0.0.1"
-scalaVersion := "2.11.8"
+version       := "0.0.2"
+scalaVersion := "2.11.12"
 organization := "com.gu.zuora"
 
 scalacOptions ++= Seq(
@@ -24,7 +24,7 @@ scalacOptions ++= Seq(
 )
 
 lazy val root = (project in file(".")).enablePlugins(ScalaxbPlugin, RiffRaffArtifact)
-val dispatchV = "0.11.3" // change this to appropriate dispatch version
+val dispatchV = "0.11.4" // TODO - Needs upgrading to 0.13.x and generation code changing to accommodate.
 
 scalaxbDispatchVersion in (Compile, scalaxb) := dispatchV
 scalaxbPackageName in (Compile, scalaxb) := "com.gu.zuora.soap"
@@ -41,20 +41,21 @@ addCommandAlias("dist", ";riffRaffArtifact")
 resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases"
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % "1.0.6" % "compile",
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5" % "compile",
+  "org.scala-lang.modules" %% "scala-xml" % "1.0.1" % "compile",
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1" % "compile",
   "com.amazonaws" % "aws-lambda-java-log4j" % "1.0.0",
   "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
-  "com.amazonaws" % "aws-java-sdk-kms" % "1.11.86",
+  "com.amazonaws" % "aws-java-sdk-kms" % "1.11.477",
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
-  "com.typesafe.play" %% "play-json" % "2.5.12",
-  "org.scalaj" %% "scalaj-http" % "2.3.0",
-  "com.github.melrief" %% "purecsv" % "0.0.9",
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.7",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.7", // added for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.9.7",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "io.netty" % "netty" % "3.10.3.Final",
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  "com.typesafe.play" %% "play-json" % "2.6.13",
+  "org.scalaj" %% "scalaj-http" % "2.4.1",
+  "com.github.melrief" %% "purecsv" % "0.1.1",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  //"com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.0", // This is the version
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 
 initialize := {

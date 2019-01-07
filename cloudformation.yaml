@@ -8,6 +8,10 @@ Parameters:
       - PROD
       - CODE
     Default: CODE
+  WaitTimeForZuora:
+    Description: How long the step function should wait (in seconds) for Zuora to generate its Export
+    Type: Number
+    Default: 500
 
 Resources:
   ZuoraCreditorRole:
@@ -138,7 +142,7 @@ Resources:
             },
             "wait_using_seconds": {
               "Type": "Wait",
-              "Seconds": 500,
+              "Seconds": ${WaitTimeForZuora},
               "Next": "FinalState"
             },
             "FinalState": {
