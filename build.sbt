@@ -44,17 +44,17 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.1" % "compile",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1" % "compile",
   "com.amazonaws" % "aws-lambda-java-log4j" % "1.0.0",
-  "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
-  "com.amazonaws" % "aws-java-sdk-kms" % "1.11.477",
+  "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
+  "com.amazonaws" % "aws-java-sdk-kms" % "1.11.566",
   "net.databinder.dispatch" %% "dispatch-core" % dispatchV,
   "com.typesafe.play" %% "play-json" % "2.6.13",
   "org.scalaj" %% "scalaj-http" % "2.4.1",
   "com.github.melrief" %% "purecsv" % "0.1.1",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  //"com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.0", // This is the version
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.9.8",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.9", // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 
