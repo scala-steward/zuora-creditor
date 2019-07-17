@@ -40,6 +40,8 @@ addCommandAlias("dist", ";riffRaffArtifact")
 
 resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases"
 
+val jacksonVersion = "2.9.9"
+
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.1" % "compile",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1" % "compile",
@@ -50,11 +52,11 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.6.13",
   "org.scalaj" %% "scalaj-http" % "2.4.1",
   "com.github.melrief" %% "purecsv" % "0.1.1",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.9", // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion, // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 
