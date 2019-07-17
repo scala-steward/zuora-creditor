@@ -52,7 +52,7 @@ libraryDependencies ++= Seq(
   "com.github.melrief" %% "purecsv" % "0.1.1",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9.1",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.9", // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
   "com.fasterxml.jackson.core" % "jackson-core" % "2.9.9",  // updated for snyk: https://app.snyk.io/org/the-guardian-cuu/project/c8aa728c-1f6a-4ede-900c-dfde0c0af9bf/
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
