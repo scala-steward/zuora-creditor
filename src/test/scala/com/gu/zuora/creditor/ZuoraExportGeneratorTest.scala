@@ -1,20 +1,20 @@
 package com.gu.zuora.creditor
 
 import com.gu.zuora.creditor.Models.ExportCommand
-import com.gu.zuora.creditor.Types.SerialisedJson
+import com.gu.zuora.creditor.Types.{RawCSVText, SerialisedJson}
 import org.scalatest.FlatSpec
 
 class ZuoraExportGeneratorTest extends FlatSpec {
 
-  val validCommand = new ExportCommand {
+  private val validCommand = new ExportCommand {
     override def getJSON: SerialisedJson = """{"valid":"command"}"""
   }
 
-  val invalidCommand = new ExportCommand {
+  private val invalidCommand = new ExportCommand {
     override def getJSON: SerialisedJson = """{"invalid":"command"}"""
   }
 
-  implicit val zuoraRestClient = new TestRestClient {
+  private val zuoraRestClient = new ZuoraRestClient {
     override def makeRestPOST(path: String)(commandJSON: SerialisedJson): SerialisedJson = {
       assert(path == "object/export")
       if (commandJSON == validCommand.getJSON) {
@@ -23,25 +23,26 @@ class ZuoraExportGeneratorTest extends FlatSpec {
         ""
       }
     }
+    override def makeRestGET(path: String): SerialisedJson = ???
+    override def downloadFile(path: String): RawCSVText = ???
   }
+
+  private val zuoraGenerateExport = ZuoraExportGenerator.apply(zuoraRestClient) _
 
   behavior of "ZuoraExportGeneratorTest"
 
   it should "extractExportId" in {
-    val generator = new ZuoraExportGenerator(validCommand)
-    assert(generator.extractExportId("""{"foo":"bar"}""").isEmpty)
-    assert(generator.extractExportId("""{"Id":""}""").isEmpty)
-    assert(generator.extractExportId("""{"Id": 1}""").isEmpty)
-    assert(generator.extractExportId("""{Id: "bar"}""").isEmpty)
-    assert(generator.extractExportId("""{"Id":"bar"}""").contains("bar"))
+    import ZuoraExportGenerator.extractExportId
+    assert(extractExportId("""{"foo":"bar"}""").isEmpty)
+    assert(extractExportId("""{"Id":""}""").isEmpty)
+    assert(extractExportId("""{"Id": 1}""").isEmpty)
+    assert(extractExportId("""{Id: "bar"}""").isEmpty)
+    assert(extractExportId("""{"Id":"bar"}""").contains("bar"))
   }
 
   it should "generate" in {
-    val generator1 = new ZuoraExportGenerator(validCommand)
-    assert(generator1.generate().contains("baz"))
-
-    val generator2 = new ZuoraExportGenerator(invalidCommand)
-    assert(generator2.generate().isEmpty)
+    assert(zuoraGenerateExport(validCommand).contains("baz"))
+    assert(zuoraGenerateExport(invalidCommand).isEmpty)
   }
 
 
