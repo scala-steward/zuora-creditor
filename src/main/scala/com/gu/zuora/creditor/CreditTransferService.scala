@@ -16,7 +16,7 @@ object CreditTransferService extends LazyLogging {
   // operations allow changes to up-to 50 objects at a time
   val maxNumberOfCreateObjects = 50
 
-  def invoicesFromReport(report: NegativeInvoiceReport): Set[NegativeInvoiceToTransfer] = {
+  def processInvoicesFromReport(report: NegativeInvoiceReport): Set[NegativeInvoiceToTransfer] = {
     report.reportLines.flatMap { reportLine =>
       val result = processNegativeInvoicesExportLine(reportLine)
       result.left.foreach(x => logger.warn(x))
@@ -24,14 +24,14 @@ object CreditTransferService extends LazyLogging {
     }.toSet
   }
 
-  def processNegativeInvoicesExportLine(reportLine: NegativeInvoiceFileLine): Either[ErrorMessage, NegativeInvoiceToTransfer] = {
+  private def processNegativeInvoicesExportLine(reportLine: NegativeInvoiceFileLine): Either[ErrorMessage, NegativeInvoiceToTransfer] = {
     // Not HALF_EVEN rounding - we always round to the customer's benefit using UP
     val invoiceBalance = Try(BigDecimal.apply(reportLine.invoiceBalance).setScale(2, UP)).toOption
     val invoiceNumberIsValid = reportLine.invoiceNumber.nonEmpty
     val subscriptionNameIsValid = reportLine.subscriptionName.nonEmpty
 
     if (invoiceBalance.exists(_ < 0) && invoiceNumberIsValid && subscriptionNameIsValid) {
-      Right(NegativeInvoiceToTransfer(reportLine.invoiceNumber, invoiceBalance.get, reportLine.subscriptionName))
+      Right(NegativeInvoiceToTransfer(reportLine.invoiceNumber, invoiceBalance.get, reportLine.subscriptionName, reportLine.ratePlanName))
     } else {
       Left(s"Ignored invoice ${reportLine.invoiceNumber} dated ${reportLine.invoiceDate} with balance ${reportLine.invoiceBalance} for subscription: " +
         s"${reportLine.subscriptionName} as its balance is not negative or some other piece of information is missing")
@@ -47,19 +47,28 @@ class CreditTransferService(
   import CreditTransferService._
   import ModelReaders._
 
-  def processExportFile(exportId: ExportId): Int = {
+  def processExportFile(exportId: ExportId): AdjustmentsReport = {
     val maybeExportCSV = downloadGeneratedExportFile(exportId)
-    val invoicesWhichNeedCrediting = maybeExportCSV.map(x => invoicesFromReport(ExportFile(x))).getOrElse {
+    maybeExportCSV.foreach { rawCSV =>
+      logger.info(s"csv export: $rawCSV")
+    }
+    val invoiceItemsWhichNeedCrediting = maybeExportCSV.map(x => processInvoicesFromReport(ExportFile(x))).getOrElse {
       logger.error("Unable to download export of negative invoices to credit")
       Set.empty[NegativeInvoiceToTransfer]
     }
-    if (invoicesWhichNeedCrediting.isEmpty) {
-      logger.warn("No negative invoices reqire crediting today")
+    if (invoiceItemsWhichNeedCrediting.isEmpty) {
+      logger.warn("No negative invoices require crediting today")
     }
-    makeCreditAdjustments(invoicesWhichNeedCrediting).size
+    val negativeInvoicesWithAutomatedHolidayCredit = invoiceItemsWhichNeedCrediting.
+      filter(_.ratePlanName.toLowerCase.contains("automated")).groupBy(_.invoiceNumber).size
+    val makeCreditAdjustmentsResult = makeCreditAdjustments(invoiceItemsWhichNeedCrediting)
+    AdjustmentsReport(
+      creditBalanceAdjustmentsTotal = makeCreditAdjustmentsResult.size,
+      negativeInvoicesWithAutomatedHolidayCredit
+    )
   }
 
-  def makeCreditAdjustments(invoices: Set[NegativeInvoiceToTransfer]): CreditBalanceAdjustmentIDs = {
+  private def makeCreditAdjustments(invoices: Set[NegativeInvoiceToTransfer]) = {
     if (invoices.nonEmpty) {
       // Sort by invoice name to help with logging, we're going to credit them in order of their invoice number
       val invoicesToCredit = invoices.toSeq.sortBy(_.invoiceNumber)
@@ -71,21 +80,19 @@ class CreditTransferService(
         s"${invoices.map(_.invoiceNumber).mkString(", ")}")
 
       val (errors, success) = createCreditBalanceAdjustments(adjustmentsToMake)
-
-      logger.info(s"Successfully created ${success.size} Credit Balance Adjustments with IDs: ${success.mkString(", ")}")
-
       if (errors.nonEmpty) {
         val errorMsg = s"${errors.size} Errors creating Credit Balance Adjustment: ${errors.mkString(", ")}"
         logger.error(s"${errors.size} Errors creating Credit Balance Adjustment: ${errors.mkString(", ")}")
         // propagate error to AWS lambda metrics
         throw new IllegalStateException(errorMsg)
-      } else success
-    } else {
-      Seq.empty
-    }
+      } else {
+        logger.info(s"Successfully created ${success.size} Credit Balance Adjustments with IDs: ${success.mkString(", ")}")
+        success
+      }
+    } else Seq.empty
   }
 
-  def createCreditBalanceAdjustments(adjustmentsToMake: Seq[CreateCreditBalanceAdjustment]): (List[ErrorMessage], CreditBalanceAdjustmentIDs) = {
+  private def createCreditBalanceAdjustments(adjustmentsToMake: Seq[CreateCreditBalanceAdjustment]): (List[ErrorMessage], CreditBalanceAdjustmentIDs) = {
     val batches = adjustmentsToMake.grouped(batchSize).toList
     logger.info(s"createCreditBalanceAdjustments batches: $batches")
     val result = batches.flatMap(adjustCreditBalance)

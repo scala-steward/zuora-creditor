@@ -13,8 +13,22 @@ Parameters:
     Description: How long the step function should wait (in seconds) for Zuora to generate its Export
     Type: Number
     Default: 500
+  AlarmEmail:
+    Description: AlarmEmail
+    Type: String
+    Default: fulfilment.dev@guardian.co.uk
 
 Resources:
+  CreditBalanceAdjustmentSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub 'zuora-credit-balance-adjustment-alarms-${Stage}'
+      Subscription:
+        -
+          Endpoint:
+            Ref: AlarmEmail
+          Protocol: email
+      TopicName: !Sub 'zuora-credit-balance-adjustment-alarms-${Stage}'
   ZuoraCreditorRole:
     Type: AWS::IAM::Role
     Properties:
@@ -47,6 +61,10 @@ Resources:
                 Action:
                   - kms:Decrypt
                 Resource: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/ssm
+              - Effect: Allow
+                Action:
+                  - SNS:Publish
+                Resource: !Ref CreditBalanceAdjustmentSNSTopic
   LambdaKMSKey:
     Type: AWS::KMS::Key
     Properties:
@@ -118,6 +136,7 @@ Resources:
           App: zuora-creditor
           Stack: subscriptions
           Stage: !Ref Stage
+          alarms_topic_arn: !Ref CreditBalanceAdjustmentSNSTopic
       KmsKeyArn: !GetAtt LambdaKMSKey.Arn
 
   ZuoraCreditorStepFunctionRole:

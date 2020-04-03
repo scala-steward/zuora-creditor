@@ -1,6 +1,8 @@
 package com.gu.zuora.creditor
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
+import com.amazonaws.services.sns.AmazonSNSClient
+import com.amazonaws.services.sns.model.PublishRequest
 import com.gu.zuora.creditor.Types.KeyValue
 import com.gu.zuora.creditor.holidaysuspension.GetNegativeHolidaySuspensionInvoices
 import com.typesafe.scalalogging.LazyLogging
@@ -36,15 +38,17 @@ class Lambda extends RequestHandler[KeyValue, KeyValue] with LazyLogging {
         downloadGeneratedExportFile = ZuoraExportDownloadService.apply(zuoraRestClient)
       )
       val exportId = event.get("creditInvoicesFromExport")
-      val res = Map("numberOfInvoicesCredited" -> creditTransferService.processExportFile(exportId).toString).asJava
-      logger.info(s"numberOfInvoicesCredited ${res.asScala.toMap}")
-      res
+      val adjustmentsReport = creditTransferService.processExportFile(exportId)
+      val adjustmentsCreated = adjustmentsReport.creditBalanceAdjustmentsTotal
+      val result = Map("numberOfInvoicesCredited" -> adjustmentsCreated.toString).asJava
+      Alarmer.notifyIfAdjustmentTriggered(adjustmentsReport)
+      logger.info(s"numberOfInvoicesCredited = $adjustmentsCreated")
+      result
     } else {
       logger.error(s"Lambda called with incorrect input data: $event")
       Map("nothingToDo" -> true.toString).asJava
     }
   }
-
 }
 
 
