@@ -3,6 +3,14 @@ stacks:
 regions:
 - eu-west-1
 deployments:
+  cfn:
+    type: cloud-formation
+    app: zuora-auto-cancel-
+    prependStackToCloudFormationStackName: false
+    appendStageToCloudFormationStackName: true
+    createStackIfAbsent: false
+    parameters:
+      templatePath: Cfn.yaml
   zuora-creditor:
     type: aws-lambda
     parameters:
@@ -11,3 +19,4 @@ deployments:
       prefixStack: false
       functionNames:
       - zuora-creditor-
+    dependencies: [cfn]
