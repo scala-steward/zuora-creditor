@@ -8,7 +8,8 @@ deployments:
     type: cloud-formation
     app: zuora-creditor
     parameters:
-      templatePath: cfn.yaml
+      templatePath: cloudformation.yaml
+      cloudFormationStackName: zuora-creditor
 
   zuora-creditor:
     type: aws-lambda
@@ -18,5 +19,4 @@ deployments:
       prefixStack: false
       functionNames:
         - zuora-creditor-
-      lookupByTags: false
     dependencies: [ cfn ]
