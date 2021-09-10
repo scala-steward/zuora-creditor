@@ -1,16 +1,15 @@
 stacks:
-- subscriptions
+  - subscriptions
 regions:
-- eu-west-1
+  - eu-west-1
 deployments:
+
   cfn:
     type: cloud-formation
-    app: zuora-auto-cancel-
-    prependStackToCloudFormationStackName: false
-    appendStageToCloudFormationStackName: true
-    createStackIfAbsent: false
+    app: zuora-creditor
     parameters:
-      templatePath: Cfn.yaml
+      templatePath: cfn.yaml
+
   zuora-creditor:
     type: aws-lambda
     parameters:
@@ -18,5 +17,6 @@ deployments:
       bucket: subscriptions-dist
       prefixStack: false
       functionNames:
-      - zuora-creditor-
-    dependencies: [cfn]
+        - zuora-creditor-
+      lookupByTags: false
+    dependencies: [ cfn ]
