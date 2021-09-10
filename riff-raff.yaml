@@ -3,14 +3,6 @@ stacks:
 regions:
   - eu-west-1
 deployments:
-
-  cfn:
-    type: cloud-formation
-    app: zuora-creditor
-    parameters:
-      templatePath: cloudformation.yaml
-      cloudFormationStackName: zuora-creditor
-
   zuora-creditor:
     type: aws-lambda
     parameters:
@@ -18,5 +10,4 @@ deployments:
       bucket: subscriptions-dist
       prefixStack: false
       functionNames:
-        - zuora-creditor-
-    dependencies: [ cfn ]
+      - zuora-creditor-
