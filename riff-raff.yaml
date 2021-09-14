@@ -1,7 +1,7 @@
 stacks:
-- subscriptions
+  - subscriptions
 regions:
-- eu-west-1
+  - eu-west-1
 deployments:
   cfn:
     type: cloud-formation
