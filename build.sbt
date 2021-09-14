@@ -7,7 +7,8 @@ organization := "com.gu.zuora"
 
 scalacOptions ++= Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-target:jvm-1.8",
   "-language:existentials",
@@ -28,7 +29,7 @@ riffRaffPackageType := assembly.value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
 riffRaffManifestProjectName := "MemSub::Membership Admin::Zuora Creditor"
-riffRaffArtifactResources += (file("zuora-creditor/cloudformation.yaml"), "cfn/cfn.yaml")
+riffRaffArtifactResources += (file("cloudformation.yaml"), "cfn/cfn.yaml")
 
 addCommandAlias("dist", ";riffRaffArtifact")
 
@@ -53,11 +54,13 @@ libraryDependencies ++= Seq(
 
 initialize := {
   val _ = initialize.value
-  assert(sys.props("java.specification.version") == "1.8", "Java 8 is required for this project.")
+  assert(
+    sys.props("java.specification.version") == "1.8",
+    "Java 8 is required for this project."
+  )
 }
 
 assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", xs@_*) => MergeStrategy.discard
-  case x => MergeStrategy.first
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x                             => MergeStrategy.first
 }
-
