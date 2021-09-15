@@ -19,4 +19,4 @@ deployments:
       prefixStack: false
       functionNames:
       - zuora-creditor-
-      
+    dependencies: [cfn]
