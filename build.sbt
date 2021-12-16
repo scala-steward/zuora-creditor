@@ -38,7 +38,7 @@ val jacksonVersion = "2.10.3"
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
   "com.amazonaws" % "aws-java-sdk-sns" % "1.12.99",
-  "com.gu" %% "simple-configuration-ssm" % "1.5.8-SNAPSHOT",
+  "com.gu" %% "simple-configuration-ssm" % "1.5.7",
   "com.typesafe.play" %% "play-json" % "2.6.13",
   "ch.qos.logback" % "logback-classic" % "1.2.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
