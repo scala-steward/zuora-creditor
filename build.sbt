@@ -18,8 +18,7 @@ scalacOptions ++= Seq(
   "-Xfatal-warnings",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard",
-  "-Xfuture"
+  "-Ywarn-value-discard"
 )
 
 lazy val root = (project in file(".")).enablePlugins(RiffRaffArtifact)
@@ -61,6 +60,6 @@ initialize := {
 }
 
 assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case x                             => MergeStrategy.first
+  case PathList("META-INF", _ @ _*) => MergeStrategy.discard
+  case _                             => MergeStrategy.first
 }

@@ -5,6 +5,8 @@ import com.gu.zuora.creditor.Types.{RawCSVText, SerialisedJson, ZOQLQueryFragmen
 import purecsv.unsafe
 import purecsv.unsafe.CSVReader
 
+import scala.reflect.ClassTag
+
 object Models {
 
   trait ExportFileLine
@@ -32,7 +34,7 @@ object Models {
     def getJSON: SerialisedJson
   }
 
-  case class ExportFile[S <: ExportFileLine](rawCSV: RawCSVText)(implicit reader: CSVReader[S]) {
+  case class ExportFile[S <: ExportFileLine: ClassTag](rawCSV: RawCSVText)(implicit reader: CSVReader[S]) {
     val reportLines: List[S] = {
       val allLines = reader.readCSVFromString(rawCSV)
       allLines.drop(1) // discard header row!

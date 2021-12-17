@@ -2,7 +2,7 @@ package com.gu.zuora.creditor.holidaysuspension
 
 import com.gu.zuora.creditor.Lambda
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Main {
   def main(args: Array[String]): Unit = {

@@ -7,6 +7,7 @@ import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import scalaj.http.HttpOptions.readTimeout
 import scalaj.http._
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 
 trait ZuoraRestClient {
   def makeRestGET(path: String): SerialisedJson
@@ -26,7 +27,10 @@ final case class ZuoraRestConfig(
 object ZuoraAPIClientFromParameterStore extends LazyLogging {
 
   private val loadConfig = {
-    val identity = AppIdentity.whoAmI(defaultAppName = "zuora-creditor")
+    val identity = AppIdentity.whoAmI(defaultAppName = "zuora-creditor", DefaultCredentialsProvider.create()).fold(
+      failure => throw failure,
+      identity => identity
+    )
     val config: Config = ConfigurationLoader.load(identity) {
       case identity: AwsIdentity => SSMConfigurationLocation.default(identity)
     }
