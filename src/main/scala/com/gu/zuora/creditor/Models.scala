@@ -35,10 +35,7 @@ object Models {
   }
 
   case class ExportFile[S <: ExportFileLine: ClassTag](rawCSV: RawCSVText)(implicit reader: CSVReader[S]) {
-    val reportLines: List[S] = {
-      val allLines = reader.readCSVFromString(rawCSV)
-      allLines.drop(1) // discard header row!
-    }
+    val reportLines: List[S] = reader.readCSVFromString(rawCSV)
   }
 
 }
