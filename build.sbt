@@ -42,14 +42,14 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.9.2",
   "ch.qos.logback" % "logback-classic" % "1.2.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-  "org.scalaj" %% "scalaj-http" % "2.4.1",
-  "com.github.melrief" %% "purecsv" % "0.1.1",
+  "org.scalaj" %% "scalaj-http" % "2.4.2",
+  "io.kontainers" %% "purecsv" % "0.4.1",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 )
 
 initialize := {
