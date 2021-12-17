@@ -1,13 +1,11 @@
 package com.gu.zuora.creditor
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
-import com.amazonaws.services.sns.AmazonSNSClient
-import com.amazonaws.services.sns.model.PublishRequest
 import com.gu.zuora.creditor.Types.KeyValue
 import com.gu.zuora.creditor.holidaysuspension.GetNegativeHolidaySuspensionInvoices
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class Lambda extends RequestHandler[KeyValue, KeyValue] with LazyLogging {
 

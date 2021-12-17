@@ -20,7 +20,7 @@ object CreditTransferService extends LazyLogging {
     report.reportLines.flatMap { reportLine =>
       val result = processNegativeInvoicesExportLine(reportLine)
       result.left.foreach(x => logger.warn(x))
-      result.right.toOption
+      result.toOption
     }.toSet
   }
 
