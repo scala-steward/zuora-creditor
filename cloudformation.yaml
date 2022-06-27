@@ -77,7 +77,7 @@ Resources:
       Handler: com.gu.zuora.creditor.Lambda::handleRequest
       MemorySize: 512
       Role: !GetAtt ZuoraCreditorRole.Arn
-      Runtime: java8.al2
+      Runtime: java11
       Timeout: 60
       Environment:
         Variables:

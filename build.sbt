@@ -48,18 +48,15 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-  "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.8" % Test
 )
 
-initialize := {
-  val _ = initialize.value
-  assert(
-    sys.props("java.specification.version") == "1.8",
-    "Java 8 is required for this project."
-  )
-}
-
 assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", _ @ _*) => MergeStrategy.discard
-  case _                             => MergeStrategy.first
+  case PathList("META-INF", "MANIFEST.MF")                  => MergeStrategy.discard
+  case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.discard
+  case PathList("codegen-resources", _)                     => MergeStrategy.discard
+  case PathList("module-info.class")                        => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
 }
